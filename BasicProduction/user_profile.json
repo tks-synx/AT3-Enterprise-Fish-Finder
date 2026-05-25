@@ -1,0 +1,239 @@
+{
+  "feedback": [
+    {
+      "request": "make me a map showing summer and winter bluefin tuna",
+      "signature": "SOUTHERN BLUEFIN TUNA::2000|2001|2002|2003|2004|2005|2006|2007|2008|2009|2010|2011|2012|2013|2014|2015|2016|2017|2018|2019|2020|2021|2022|2023::June|July|August|December|January|February",
+      "filters": {
+        "species": [
+          "SOUTHERN BLUEFIN TUNA"
+        ],
+        "years": [
+          2000,
+          2001,
+          2002,
+          2003,
+          2004,
+          2005,
+          2006,
+          2007,
+          2008,
+          2009,
+          2010,
+          2011,
+          2012,
+          2013,
+          2014,
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023
+        ],
+        "months": [
+          "June",
+          "July",
+          "August",
+          "December",
+          "January",
+          "February"
+        ]
+      },
+      "rating": 1,
+      "note": "",
+      "timestamp": "2026-05-11T03:58:59.805155+00:00",
+      "category_scores": {
+        "Relevancy": 5,
+        "Clarity": 5,
+        "Specificity": 5,
+        "Map usefulness": 3,
+        "Overall quality": 4
+      },
+      "overall_score": 4.4
+    }
+  ],
+  "request_stats": {
+    "make me a map showing summer and winter bluefin tuna": {
+      "asked": 1,
+      "positive": 1,
+      "negative": 0,
+      "quality_total": 0.0,
+      "quality_count": 0,
+      "last_signature": "SOUTHERN BLUEFIN TUNA::2000|2001|2002|2003|2004|2005|2006|2007|2008|2009|2010|2011|2012|2013|2014|2015|2016|2017|2018|2019|2020|2021|2022|2023::June|July|August|December|January|February"
+    }
+  },
+  "filter_stats": {
+    "species": {
+      "SOUTHERN BLUEFIN TUNA": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      }
+    },
+    "years": {
+      "2000": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "2001": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "2002": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "2003": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "2004": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "2005": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "2006": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "2007": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "2008": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "2009": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "2010": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "2011": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "2012": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "2013": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "2014": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "2015": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "2016": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "2017": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "2018": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "2019": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "2020": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "2021": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "2022": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "2023": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      }
+    },
+    "months": {
+      "June": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "July": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "August": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "December": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "January": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      },
+      "February": {
+        "asked": 1,
+        "positive": 1,
+        "negative": 0
+      }
+    }
+  },
+  "favorite_requests": [
+    {
+      "request": "make me a map showing summer and winter bluefin tuna",
+      "positive": 1,
+      "negative": 0,
+      "asked": 1
+    }
+  ]
+}

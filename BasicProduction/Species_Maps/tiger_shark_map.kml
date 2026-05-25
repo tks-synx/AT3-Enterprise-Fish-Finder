@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Folder>
+    <name>TIGER SHARK Heatmap</name>
+    <GroundOverlay>
+      <name>TIGER SHARK Density</name>
+      <Icon>
+        <href>tiger_shark_overlay.png</href>
+      </Icon>
+      <LatLonBox>
+        <north>-11.991666669999999</north>
+        <south>-44.091666669999995</south>
+        <east>163.76666666700007</east>
+        <west>108.56666666700009</west>
+      </LatLonBox>
+    </GroundOverlay>
+  </Folder>
+</kml>

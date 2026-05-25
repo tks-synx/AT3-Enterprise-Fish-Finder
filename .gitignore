@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+
+# Virtual environments
+venv/
+.venv/
+
+# OS / editor
+.DS_Store
+.vscode/
+
+# Logs
+*.log
+
+# Incoming data drops (keep folders via .gitkeep)
+incoming_data/**
+!incoming_data/**/
+!incoming_data/.gitkeep
+!incoming_data/**/.gitkeep
