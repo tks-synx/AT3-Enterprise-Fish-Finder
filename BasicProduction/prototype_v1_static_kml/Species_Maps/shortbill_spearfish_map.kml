@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Folder>
+    <name>SHORTBILL SPEARFISH Heatmap</name>
+    <GroundOverlay>
+      <name>SHORTBILL SPEARFISH Density</name>
+      <Icon>
+        <href>shortbill_spearfish_overlay.png</href>
+      </Icon>
+      <LatLonBox>
+        <north>-15.933333333</north>
+        <south>-43.733333337</south>
+        <east>163.7500000000001</east>
+        <west>109.75000000000011</west>
+      </LatLonBox>
+    </GroundOverlay>
+  </Folder>
+</kml>

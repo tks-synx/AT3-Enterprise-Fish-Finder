@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Folder>
+    <name>BIGEYE TUNA Heatmap</name>
+    <GroundOverlay>
+      <name>BIGEYE TUNA Density</name>
+      <Icon>
+        <href>bigeye_tuna_overlay.png</href>
+      </Icon>
+      <LatLonBox>
+        <north>-15.608333337000001</north>
+        <south>-40.308333333</south>
+        <east>169.95833333330012</east>
+        <west>110.45833333370008</west>
+      </LatLonBox>
+    </GroundOverlay>
+  </Folder>
+</kml>

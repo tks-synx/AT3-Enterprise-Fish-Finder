@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Folder>
+    <name>DOLPHINFISH Heatmap</name>
+    <GroundOverlay>
+      <name>DOLPHINFISH Density</name>
+      <Icon>
+        <href>dolphinfish_overlay.png</href>
+      </Icon>
+      <LatLonBox>
+        <north>-0.8083333330000002</north>
+        <south>-45.108333337</south>
+        <east>163.65833333300003</east>
+        <west>108.75833333300004</west>
+      </LatLonBox>
+    </GroundOverlay>
+  </Folder>
+</kml>

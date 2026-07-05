@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Folder>
+    <name>BLACK MARLIN Heatmap</name>
+    <GroundOverlay>
+      <name>BLACK MARLIN Density</name>
+      <Icon>
+        <href>black_marlin_overlay.png</href>
+      </Icon>
+      <LatLonBox>
+        <north>-1.108333333</north>
+        <south>-41.808333337</south>
+        <east>164.32500000040008</east>
+        <west>108.42499999960003</west>
+      </LatLonBox>
+    </GroundOverlay>
+  </Folder>
+</kml>

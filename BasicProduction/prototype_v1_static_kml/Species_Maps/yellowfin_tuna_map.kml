@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Folder>
+    <name>YELLOWFIN TUNA Heatmap</name>
+    <GroundOverlay>
+      <name>YELLOWFIN TUNA Density</name>
+      <Icon>
+        <href>yellowfin_tuna_overlay.png</href>
+      </Icon>
+      <LatLonBox>
+        <north>-0.625</north>
+        <south>-47.125</south>
+        <east>163.86666666670013</east>
+        <west>108.46666666630003</west>
+      </LatLonBox>
+    </GroundOverlay>
+  </Folder>
+</kml>

@@ -22,3 +22,6 @@ incoming_data/**
 !incoming_data/**/
 !incoming_data/.gitkeep
 !incoming_data/**/.gitkeep
+
+/scripts/certainty-factor-flowchart.mmd
+/scripts/certainty-factor-decision-tree.mmd
