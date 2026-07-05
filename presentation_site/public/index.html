@@ -11,7 +11,7 @@
 
   <header class="site-header">
     <h1 class="site-title">Fish Finder <span>AT3b</span></h1>
-    <span class="section-indicator" id="section-indicator" aria-live="polite">Section 1 of 11</span>
+    <span class="section-indicator" id="section-indicator" aria-live="polite">Section 1 of 12</span>
     <nav aria-label="Section navigation">
       <ul class="nav-dots">
         <li><button type="button" class="nav-dot is-active" data-section="1" aria-label="Problem and client need" aria-current="true"></button></li>
@@ -25,6 +25,7 @@
         <li><button type="button" class="nav-dot" data-section="9" aria-label="Testing and evaluation"></button></li>
         <li><button type="button" class="nav-dot" data-section="10" aria-label="Limitations and future improvements"></button></li>
         <li><button type="button" class="nav-dot" data-section="11" aria-label="Walkthrough and demo"></button></li>
+        <li><button type="button" class="nav-dot" data-section="12" aria-label="Presenting to client"></button></li>
       </ul>
     </nav>
   </header>
@@ -38,14 +39,28 @@
     <aside class="sticky-visual" aria-label="Presentation visuals">
 
       <!-- §1 Problem -->
-      <div class="visual-state is-active" data-section="1">
+      <div class="visual-state is-active" data-section="1" data-substep="a">
         <div class="visual-card">
-          <span class="visual-card__label">Section 1</span>
+          <span class="visual-card__label">Section 1 · Problem</span>
           <h2 class="visual-card__title">Client need</h2>
           <p class="visual-card__stat">41,440</p>
           <p class="visual-card__hint">tagging releases analysed in the final dataset</p>
         </div>
         <img class="visual-image" src="assets/images/hero/hero.png" alt="Striped marlin species heatmap overlay from the static KML prototype" loading="lazy" width="420" height="420">
+      </div>
+
+      <div class="visual-state" data-section="1" data-substep="b">
+        <div class="visual-card">
+          <span class="visual-card__label">Section 1 · Client</span>
+          <h2 class="visual-card__title">Presenting to client</h2>
+          <p class="visual-card__hint">Problem → evidence → outcomes → what we learnt</p>
+        </div>
+        <ul class="feature-list" aria-label="Presentation evidence types">
+          <li>Visualisations (maps &amp; dashboards)</li>
+          <li>Spreadsheet (cleansed data + formulae)</li>
+          <li>Intelligent systems (NN + expert system)</li>
+          <li>Testing &amp; limitations (honest reflection)</li>
+        </ul>
       </div>
 
       <!-- §2 Pipeline substeps -->
@@ -355,28 +370,103 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
         </div>
       </div>
 
+      <!-- §12 Presenting to client — what we learnt & outcomes -->
+      <div class="visual-state" data-section="12" data-substep="a">
+        <div class="visual-card">
+          <span class="visual-card__label">Section 12 · Learnings</span>
+          <h2 class="visual-card__title">What we learnt</h2>
+          <p class="visual-card__hint">Key findings from data, visualisations &amp; intelligent systems</p>
+        </div>
+        <div class="learnings-card">
+          <p class="learnings-card__heading">Data &amp; pipeline</p>
+          <ul>
+            <li>Weather API coverage ~24.5% of enriched rows</li>
+            <li>SST 100% null — excluded from models</li>
+            <li>41,440-row cleaned dataset is the reliable base</li>
+          </ul>
+          <p class="learnings-card__heading">Visualisations</p>
+          <ul>
+            <li>Catch patterns vary by species, season &amp; location</li>
+            <li>Interactive maps beat static KML for exploration</li>
+          </ul>
+          <p class="learnings-card__heading">Intelligent systems</p>
+          <ul>
+            <li>~62% species prediction accuracy from context</li>
+            <li>What-if shows why probabilities shift</li>
+            <li>Expert system explains rules in plain English</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="visual-state" data-section="12" data-substep="b">
+        <div class="visual-card visual-card--compact">
+          <span class="visual-card__label">Section 12 · Outcomes</span>
+          <h2 class="visual-card__title">Delivered to client</h2>
+          <p class="visual-card__hint">Four enterprise deliverables</p>
+        </div>
+        <div class="outcomes-grid" role="list" aria-label="Client deliverables">
+          <div class="outcomes-grid__item" role="listitem">
+            <span class="outcomes-grid__label">Visualisation</span>
+            <span class="outcomes-grid__title">Streamlit + Folium</span>
+            <span class="outcomes-grid__hint">Live interactive dashboard</span>
+          </div>
+          <div class="outcomes-grid__item" role="listitem">
+            <span class="outcomes-grid__label">Spreadsheet</span>
+            <span class="outcomes-grid__title">Excel workbook</span>
+            <span class="outcomes-grid__hint">18,225 rows + IF formula</span>
+          </div>
+          <div class="outcomes-grid__item" role="listitem">
+            <span class="outcomes-grid__label">Dashboard</span>
+            <span class="outcomes-grid__title">Power BI</span>
+            <span class="outcomes-grid__hint">Reference screenshots</span>
+          </div>
+          <div class="outcomes-grid__item" role="listitem">
+            <span class="outcomes-grid__label">Intelligent systems</span>
+            <span class="outcomes-grid__title">NN + expert system</span>
+            <span class="outcomes-grid__hint">Prediction &amp; rule-based guidance</span>
+          </div>
+        </div>
+        <p class="visual-card__hint visual-card__hint--small">Guidance supports decisions — does not guarantee catches</p>
+      </div>
+
     </aside>
 
     <div class="steps-column">
 
       <!-- §1 Problem and client need -->
-      <section class="step step-anchor" id="section-1" data-section="1">
-        <span class="step__number">01 — PROBLEM</span>
-        <h2>Problem and client need</h2>
+      <section class="step step-anchor" id="section-1" data-section="1" data-substep="a">
+        <span class="step__number">01a — PROBLEM</span>
+        <h2>Problem statement</h2>
         <p>
           Game-fish tagging programs collect thousands of release records — species, location,
           date, and catch details — but raw exports are difficult for anglers and researchers
           to explore without specialist tools.
         </p>
         <p>
-          The client need is an enterprise system that makes tagging data easier to understand:
-          where fish were released, when activity peaks, and how environmental context (weather,
-          moon phase) relates to catch patterns — including support for use in the field where
-          internet access may be limited.
+          <strong>Client need:</strong> an enterprise system that makes tagging data easier to
+          understand — where fish were released, when activity peaks, and how environmental
+          context (weather, moon phase) relates to catch patterns — including support for use
+          in the field where internet access may be limited.
+        </p>
+      </section>
+
+      <section class="step" data-section="1" data-substep="b">
+        <span class="step__number">01b — CLIENT</span>
+        <h2>Presenting to the client</h2>
+        <p>
+          This website is the <strong>client presentation layer</strong>. It walks through the
+          problem, shows how the data was prepared, and presents evidence from
+          <strong>visualisations</strong>, the <strong>spreadsheet</strong>, and
+          <strong>intelligent-system outcomes</strong> — ending with what we learnt and what was
+          delivered.
+        </p>
+        <p>
+          The live Streamlit app runs locally for hands-on demo; this site explains the research
+          results for assessment and client review without hosting models or raw data files.
         </p>
         <p class="step__note">
-          This project addresses AT3b requirements for data science, visualisation, intelligent
-          systems, and a clear presentation of research results.
+          Scroll through sections 2–11 for detailed evidence, then section 12 for a summary of
+          learnings and client outcomes.
         </p>
       </section>
 
@@ -440,6 +530,10 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
           (<code>BasicProduction/train_species_nn.py</code>), ensuring the app and model always
           use the same features.
         </p>
+        <p class="step__note step__note--learned">
+          <strong>What we learnt:</strong> a single cleaned primary dataset keeps the app, model,
+          and spreadsheet aligned; provenance CSVs at each stage are kept as evidence.
+        </p>
       </section>
 
       <!-- §3 Prototype evolution (3 substeps) -->
@@ -455,6 +549,10 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
         <p>
           Limitation: no interactivity — changing species or date required regenerating the image.
           No weather context or intelligent-system reasoning.
+        </p>
+        <p class="step__note step__note--learned">
+          <strong>What we learnt:</strong> static KML proved visualisation was possible, but
+          clients need interactive filtering — that drove the Streamlit + Folium dashboard.
         </p>
       </section>
 
@@ -472,9 +570,11 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
           what-if analysis, certainty-factor engine) — added in later project stages, not in
           this website section.
         </p>
+        <p class="step__note step__note--learned">
+          <strong>What we learnt:</strong> the dashboard became the integration point — map
+          filters, offline LLM summaries, and user ratings later fed the expert system.
+        </p>
       </section>
-
-      <section class="step" data-section="3" data-substep="c">
         <span class="step__number">03c — PROTOTYPE</span>
         <h2>Stage 3: Power BI reference dashboard</h2>
         <p>
@@ -486,9 +586,12 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
           The <code>.pbix</code> file stays in the repository unchanged. This presentation site
           references it through screenshots only — the file is never copied into the website.
         </p>
+        <p class="step__note step__note--learned">
+          <strong>What we learnt:</strong> Streamlit suits interactive intelligent systems;
+          Power BI suits polished reporting — both visualise the same data story for different
+          audiences.
+        </p>
       </section>
-
-      <!-- §4 Spreadsheet evidence -->
       <section class="step step-anchor" id="section-4" data-section="4">
         <span class="step__number">04 — SPREADSHEET</span>
         <h2>Spreadsheet evidence</h2>
@@ -508,9 +611,11 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
           SST is not used as a filter (it is 100% null). The spreadsheet uses the same cleaned
           dataset lineage as the app and model.
         </p>
+        <p class="step__note step__note--learned">
+          <strong>What we learnt:</strong> the pipeline produces formula-ready, cleansed exports
+          clients can open in Excel — not just a developer-only CSV.
+        </p>
       </section>
-
-      <!-- §5 Power BI / dashboard evidence -->
       <section class="step step-anchor" id="section-5" data-section="5">
         <span class="step__number">05 — DASHBOARD</span>
         <h2>Power BI and dashboard evidence</h2>
@@ -529,9 +634,11 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
           <code>assets/images/dashboard/</code>. The live <code>.pbix</code> file is
           not embedded, copied, or hosted here.
         </p>
+        <p class="step__note step__note--learned">
+          <strong>What we learnt:</strong> dashboard visualisations help clients see species
+          trends and seasonal peaks at a glance — evidence is shown here via screenshots.
+        </p>
       </section>
-
-      <!-- §6 Neural network -->
       <section class="step step-anchor" id="section-6" data-section="6" data-substep="a">
         <span class="step__number">06a — NEURAL NET</span>
         <h2>Neural network intelligent system</h2>
@@ -574,9 +681,11 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
           Moderate accuracy is expected — species distribution depends on many factors not captured
           here (bait, vessel, angler skill, time of day).
         </p>
+        <p class="step__note step__note--learned">
+          <strong>What we learnt:</strong> location, season, and weather explain part of species
+          patterns (~62% accuracy) — useful for guidance, not a guarantee of catch.
+        </p>
       </section>
-
-      <!-- §7 What-if analysis -->
       <section class="step step-anchor" id="section-7" data-section="7" data-substep="a">
         <span class="step__number">07a — WHAT-IF</span>
         <h2>What-if analysis</h2>
@@ -609,9 +718,11 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
           Like the neural network, what-if analysis runs locally in Streamlit — this website
           explains and shows screenshot evidence only.
         </p>
+        <p class="step__note step__note--learned">
+          <strong>What we learnt:</strong> changing month, wind, or location visibly shifts species
+          probabilities — clients can see <em>why</em> a recommendation changes.
+        </p>
       </section>
-
-      <!-- §8 Certainty-factor expert system -->
       <section class="step step-anchor" id="section-8" data-section="8" data-substep="a">
         <span class="step__number">08a — EXPERT</span>
         <h2>Certainty-factor expert system</h2>
@@ -651,9 +762,11 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
           The expert system and neural network are toggleable/separate panels in the AI Assisted
           page — together they demonstrate both predictive modelling and expert-system reasoning.
         </p>
+        <p class="step__note step__note--learned">
+          <strong>What we learnt:</strong> rule-based scoring gives clients a readable explanation
+          (rules fired + points) alongside the neural network's probability output.
+        </p>
       </section>
-
-      <!-- §9 Testing and evaluation -->
       <section class="step step-anchor" id="section-9" data-section="9" data-substep="a">
         <span class="step__number">09a — TESTING</span>
         <h2>Testing and evaluation</h2>
@@ -755,12 +868,64 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
         </p>
       </section>
 
+      <!-- §12 Presenting to client — learnings & outcomes -->
+      <section class="step step-anchor" id="section-12" data-section="12" data-substep="a">
+        <span class="step__number">12a — CLIENT</span>
+        <h2>What we learnt</h2>
+        <p>
+          Presenting back to the client means summarising findings from the full project — not
+          only what was built, but what the data and prototypes revealed.
+        </p>
+        <p><strong>From the data pipeline:</strong></p>
+        <ul>
+          <li>Only ~24.5% of enriched rows had usable weather API coverage for their date/location.</li>
+          <li>Sea surface temperature enrichment returned 100% null and was removed from active models.</li>
+          <li>A single cleaned dataset (41,440 rows) keeps the app, model, and spreadsheet consistent.</li>
+        </ul>
+        <p><strong>From visualisations:</strong></p>
+        <ul>
+          <li>Catch activity varies strongly by species, season, and geography.</li>
+          <li>Interactive Streamlit maps replaced static KML because clients need to filter without re-exporting.</li>
+          <li>Power BI complements Streamlit for reporting-style dashboard views.</li>
+        </ul>
+        <p><strong>From intelligent systems:</strong></p>
+        <ul>
+          <li>Species can be predicted ~62% accurately from location, time, and weather features.</li>
+          <li>What-if analysis shows how changing context shifts probabilities.</li>
+          <li>The certainty-factor expert system explains recommendations in plain English.</li>
+        </ul>
+      </section>
+
+      <section class="step" data-section="12" data-substep="b">
+        <span class="step__number">12b — CLIENT</span>
+        <h2>Outcomes delivered to the client</h2>
+        <p>
+          The enterprise system delivers evidence through <strong>visualisations</strong>,
+          a <strong>spreadsheet</strong>, and <strong>intelligent-system outcomes</strong> —
+          all grounded in the same cleaned dataset.
+        </p>
+        <ul>
+          <li><strong>Streamlit + Folium dashboard</strong> — interactive map, filters, AI-assisted mode, intelligent-system panels (live app).</li>
+          <li><strong>Excel spreadsheet</strong> — 18,225 cleansed rows with <code>Weight_Classification</code> IF formula.</li>
+          <li><strong>Power BI dashboard</strong> — BI visualisation reference (screenshot evidence on this site).</li>
+          <li><strong>Neural network + certainty-factor expert system</strong> — species prediction, what-if analysis, and rule-based recommendations.</li>
+        </ul>
+        <p class="step__note">
+          Predictions and certainty scores <strong>support</strong> fishing decisions — they do
+          not guarantee a catch. Known limitations are documented in section 10.
+        </p>
+        <p class="step__note step__note--learned">
+          <strong>Client takeaway:</strong> tagging data can be turned into an explorable,
+          offline-capable enterprise tool with both data-driven and rule-based guidance.
+        </p>
+      </section>
+
     </div>
   </main>
 
   <footer class="site-footer">
     <p class="site-footer__title">AT3 Enterprise Computing · Fish Finder</p>
-    <p class="site-footer__meta">Presentation site · Sections 1–11 · Intelligent systems run locally in Streamlit</p>
+    <p class="site-footer__meta">Presentation site · Sections 1–12 · Intelligent systems run locally in Streamlit</p>
   </footer>
 
   <script src="js/scrolly.js"></script>

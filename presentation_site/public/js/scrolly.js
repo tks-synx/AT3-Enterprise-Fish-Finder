@@ -42,7 +42,7 @@
     });
 
     if (sectionIndicator) {
-      sectionIndicator.textContent = 'Section ' + sectionId + ' of 11';
+      sectionIndicator.textContent = 'Section ' + sectionId + ' of 12';
     }
   }
 

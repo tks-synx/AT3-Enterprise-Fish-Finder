@@ -4,7 +4,7 @@ import os
 # --- FILE PATHS ---
 # Use the final cleaned dataset used by the app/model pipeline.
 INPUT_FILE = 'newfishdata/Cleaned_Weather_GameFish_Releases_enriched.csv'
-OUTPUT_FILE = 'NESA_AT3b_Spreadsheet_Weather.xlsx'
+OUTPUT_FILE = 'NESA_AT3b_Spreadsheet_Weather_Redo.xlsx'
 
 def generate_excel():
     print(f"Loading data from {INPUT_FILE}...")

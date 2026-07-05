@@ -155,7 +155,9 @@ def train_model(df: pd.DataFrame, model_path: str):
             alpha=1e-4,
             batch_size=128,
             learning_rate_init=0.001,
-            max_iter=220,
+            learning_rate='adaptive',
+            max_iter=1000,
+            n_iter_no_change=20,
             early_stopping=False,  # Disabled due to compatibility with some Python/NumPy environments
             random_state=RANDOM_STATE,
         )),
