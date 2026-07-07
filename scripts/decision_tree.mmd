@@ -1,0 +1,145 @@
+%% Certainty-Factor Expert System — Decision Tree (column layout)
+%% Assessment artefact: decision tree representing certainty factors
+%% Sources:
+%%   - Reference image: classic CF-combination decision tree (Runny nose / Sore throat /
+%%     Headache / Temperature normal -> Cold CF), used for LAYOUT/STYLE only
+%%   - Content source: existing draw.io/mermaid text supplied for the fish
+%%     Certainty-Factor Expert System (scripts/CertaintyFactors.md, scripts/IF-THEN.md,
+%%     BasicProduction/certainty_factor.py)
+%%
+%% NOTE: direction is LR (left-to-right), not TD, so the column layout matches the
+%% reference image (see summary in chat for why this deviates from the "prefer TD" note).
+%%
+%% draw.io: Arrange -> Insert -> Advanced -> Mermaid -> paste this file
+%% Or preview at: https://mermaid.live
+
+flowchart LR
+
+    subgraph COL0[" "]
+        direction TB
+        ROOT(["ROOT<br/>Certainty-Factor Expert System<br/>Evaluate species + context"])
+    end
+
+    subgraph COL1["Species exists<br/>CF = +10"]
+        direction TB
+        D1{"Decision 1<br/>Species in<br/>historical dataset?"}
+        L0(["LEAF<br/>CF = 0<br/>Insufficient data<br/>Stop — no further rules"])
+        P1["CF += 10<br/>Species exists"]
+    end
+
+    subgraph COL2["Season match<br/>CF = +25"]
+        direction TB
+        D2{"Decision 2<br/>Month in species'<br/>top 4 historical months?"}
+        P2Y["CF += 25<br/>Season match"]
+        P2N["CF += 0<br/>Season mismatch"]
+    end
+
+    subgraph COL3["Catch density<br/>CF = +35 / +20 / +5"]
+        direction TB
+        D3{"Decision 3<br/>Historical catch density<br/>in local ~10 nm grid<br/>+ similar weather?"}
+        P3H["CF += 35<br/>High density"]
+        P3M["CF += 20<br/>Medium density"]
+        P3L["CF += 5<br/>Low density"]
+        P3N["CF += 0<br/>No density match"]
+    end
+
+    subgraph COL4["Location match<br/>CF = +25"]
+        direction TB
+        D4{"Decision 4<br/>Location inside species'<br/>typical lat/lon range<br/>5th–95th percentile?"}
+        P4Y["CF += 25<br/>Location match"]
+        P4N["CF += 0<br/>Outside range"]
+    end
+
+    subgraph COL5["User preference<br/>CF = +15"]
+        direction TB
+        D5{"Decision 5<br/>User positive feedback<br/>for species or month?"}
+        P5Y["CF += 15<br/>Preference match"]
+        P5N["CF += 0<br/>No preference bonus"]
+    end
+
+    subgraph COL6["Total CF score<br/>Max = 110"]
+        direction TB
+        SUM(["Internal node<br/>Total CF score<br/>Sum of fired rules<br/>Maximum = 110"])
+    end
+
+    subgraph COL7["Certainty band"]
+        direction TB
+        D6{"Decision 6<br/>Total CF ≥ 75?"}
+        LSTRONG(["LEAF<br/>Strong recommendation 🟢"])
+        D7{"Decision 7<br/>Total CF 45–74?"}
+        LMOD(["LEAF<br/>Moderate recommendation 🟡"])
+        D8{"Decision 8<br/>Total CF 1–44?"}
+        LWEAK(["LEAF<br/>Weak recommendation 🔴<br/>Change species, season, or location"])
+        LINS(["LEAF<br/>Insufficient data<br/>CF = 0"])
+    end
+
+    subgraph COL8["Output"]
+        direction TB
+        OUT(["Output node<br/>Species · CF score · band · rules table · explanation"])
+    end
+
+    ROOT --> D1
+
+    D1 -->|No| L0
+    D1 -->|Yes| P1
+
+    P1 --> D2
+    D2 -->|Yes| P2Y
+    D2 -->|No| P2N
+    P2Y --> D3
+    P2N --> D3
+
+    D3 -->|"≥ 20 catches"| P3H
+    D3 -->|"5–19 catches"| P3M
+    D3 -->|"1–4 catches"| P3L
+    D3 -->|"0 catches"| P3N
+    P3H --> D4
+    P3M --> D4
+    P3L --> D4
+    P3N --> D4
+
+    D4 -->|Yes| P4Y
+    D4 -->|No| P4N
+    P4Y --> D5
+    P4N --> D5
+
+    D5 -->|Yes| P5Y
+    D5 -->|No| P5N
+    P5Y --> SUM
+    P5N --> SUM
+
+    SUM --> D6
+    D6 -->|Yes| LSTRONG
+    D6 -->|No| D7
+    D7 -->|Yes| LMOD
+    D7 -->|No| D8
+    D8 -->|Yes| LWEAK
+    D8 -->|No| LINS
+
+    LSTRONG --> OUT
+    LMOD --> OUT
+    LWEAK --> OUT
+    LINS --> OUT
+    L0 --> OUT
+
+    classDef root fill:#3db8c4,stroke:#e8f0f4,color:#0c1a24,font-weight:bold
+    classDef decision fill:#1a3344,stroke:#3db8c4,color:#e8f0f4
+    classDef points fill:#122636,stroke:#8fa8b8,color:#e8f0f4
+    classDef leafStrong fill:#0c1a24,stroke:#2f9e44,color:#e8f0f4
+    classDef leafMod fill:#0c1a24,stroke:#c9a227,color:#e8f0f4
+    classDef leafWeak fill:#0c1a24,stroke:#c44,color:#e8f0f4
+    classDef leafFail fill:#0c1a24,stroke:#666,color:#8fa8b8
+    classDef sum fill:#1a3344,stroke:#5dd4de,color:#e8f0f4,font-weight:bold
+    classDef colHeader fill:none,stroke:#9fb8c8,color:#1d4ed8,font-weight:bold
+
+    class ROOT root
+    class D1,D2,D3,D4,D5,D6,D7,D8 decision
+    class P1,P2Y,P2N,P3H,P3M,P3L,P3N,P4Y,P4N,P5Y,P5N points
+    class SUM sum
+    class LSTRONG leafStrong
+    class LMOD leafMod
+    class LWEAK leafWeak
+    class L0,LINS leafFail
+    class OUT points
+
+    class COL0,COL1,COL2,COL3,COL4,COL5,COL6,COL7,COL8 colHeader

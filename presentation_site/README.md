@@ -30,9 +30,9 @@ python3 -m http.server 8080
 # open http://localhost:8080
 ```
 
-Scroll through all 11 sections — the sticky visual panel (left on desktop, top on mobile)
-should update as each text step enters the viewport. Nav dots highlight the active section
-on desktop; a **Section X of 11** label appears in the header on mobile.
+Scroll through all 12 sections — the sticky visual panel (left on desktop, top on mobile)
+should update as each text step enters the viewport. A **left sidebar** lists section titles
+on wide desktop (≥1100px); the header shows **Section X of 12** on narrower viewports.
 
 You can also open `presentation_site/public/index.html` directly in a browser, but a
 local server is preferred for consistent asset paths.
@@ -40,8 +40,8 @@ local server is preferred for consistent asset paths.
 ### Quick QA checklist (Stage E)
 
 - [ ] Progress bar fills smoothly as you scroll
-- [ ] Nav dots (desktop) match the visible section
-- [ ] Mobile header shows **Section X of 11**
+- [ ] Left sidebar nav (desktop ≥1100px) highlights the active section
+- [ ] Narrower/mobile header shows **Section X of 12**
 - [ ] Sticky panel swaps on substeps (e.g. §2a→§2d, §6a→§6b)
 - [ ] Placeholders show asset filename paths under `assets/images/`
 - [ ] No broken internal links (only `css/style.css` and `js/scrolly.js`)
@@ -116,8 +116,8 @@ Replace each placeholder `<div>` with an `<img src="assets/images/...">` when re
 
 ## Current stage
 
-**Stage E (complete):** visual polish and QA pass — all 11 sections presentation-ready
-with labelled screenshot placeholders, responsive layout, nav/progress improvements.
+**Stage E (complete):** visual polish and QA pass — all 12 sections presentation-ready
+with labelled screenshot placeholders, responsive layout, sidebar nav and progress improvements.
 
 **Next:** finish remaining screenshot placeholders, then `firebase deploy --only hosting`.
 

@@ -8,7 +8,7 @@
 
   const steps = document.querySelectorAll('.step');
   const visualStates = document.querySelectorAll('.visual-state');
-  const navDots = document.querySelectorAll('.nav-dot');
+  const navItems = document.querySelectorAll('.section-nav__item');
   const progressBar = document.getElementById('scroll-progress');
   const sectionIndicator = document.getElementById('section-indicator');
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -36,9 +36,9 @@
       visual.classList.toggle('is-active', matchesSection && matchesSubstep);
     });
 
-    navDots.forEach(function (dot) {
-      dot.classList.toggle('is-active', dot.dataset.section === sectionId);
-      dot.setAttribute('aria-current', dot.dataset.section === sectionId ? 'true' : 'false');
+    navItems.forEach(function (item) {
+      item.classList.toggle('is-active', item.dataset.section === sectionId);
+      item.setAttribute('aria-current', item.dataset.section === sectionId ? 'true' : 'false');
     });
 
     if (sectionIndicator) {
@@ -87,9 +87,9 @@
     observer.observe(step);
   });
 
-  navDots.forEach(function (dot) {
-    dot.addEventListener('click', function () {
-      var target = document.getElementById('section-' + dot.dataset.section);
+  navItems.forEach(function (item) {
+    item.addEventListener('click', function () {
+      var target = document.getElementById('section-' + item.dataset.section);
       if (target) {
         target.scrollIntoView({
           behavior: prefersReducedMotion ? 'auto' : 'smooth',

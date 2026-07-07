@@ -12,23 +12,25 @@
   <header class="site-header">
     <h1 class="site-title">Fish Finder <span>AT3b</span></h1>
     <span class="section-indicator" id="section-indicator" aria-live="polite">Section 1 of 12</span>
-    <nav aria-label="Section navigation">
-      <ul class="nav-dots">
-        <li><button type="button" class="nav-dot is-active" data-section="1" aria-label="Problem and client need" aria-current="true"></button></li>
-        <li><button type="button" class="nav-dot" data-section="2" aria-label="Dataset and cleaning"></button></li>
-        <li><button type="button" class="nav-dot" data-section="3" aria-label="Prototype evolution"></button></li>
-        <li><button type="button" class="nav-dot" data-section="4" aria-label="Spreadsheet evidence"></button></li>
-        <li><button type="button" class="nav-dot" data-section="5" aria-label="Power BI dashboard"></button></li>
-        <li><button type="button" class="nav-dot" data-section="6" aria-label="Neural network"></button></li>
-        <li><button type="button" class="nav-dot" data-section="7" aria-label="What-if analysis"></button></li>
-        <li><button type="button" class="nav-dot" data-section="8" aria-label="Certainty-factor expert system"></button></li>
-        <li><button type="button" class="nav-dot" data-section="9" aria-label="Testing and evaluation"></button></li>
-        <li><button type="button" class="nav-dot" data-section="10" aria-label="Limitations and future improvements"></button></li>
-        <li><button type="button" class="nav-dot" data-section="11" aria-label="Walkthrough and demo"></button></li>
-        <li><button type="button" class="nav-dot" data-section="12" aria-label="Presenting to client"></button></li>
-      </ul>
-    </nav>
   </header>
+
+  <nav class="section-nav" aria-label="Section navigation">
+    <p class="section-nav__heading">Navigation</p>
+    <ul class="section-nav__list">
+      <li><button type="button" class="section-nav__item is-active" data-section="1" aria-label="Problem and client need" aria-current="true"><span class="section-nav__dot" aria-hidden="true"></span><span class="section-nav__label">Problem</span></button></li>
+      <li><button type="button" class="section-nav__item" data-section="2" aria-label="Dataset and cleaning"><span class="section-nav__dot" aria-hidden="true"></span><span class="section-nav__label">Data</span></button></li>
+      <li><button type="button" class="section-nav__item" data-section="3" aria-label="Prototype evolution"><span class="section-nav__dot" aria-hidden="true"></span><span class="section-nav__label">Prototypes</span></button></li>
+      <li><button type="button" class="section-nav__item" data-section="4" aria-label="Spreadsheet evidence"><span class="section-nav__dot" aria-hidden="true"></span><span class="section-nav__label">Spreadsheet</span></button></li>
+      <li><button type="button" class="section-nav__item" data-section="5" aria-label="Power BI dashboard"><span class="section-nav__dot" aria-hidden="true"></span><span class="section-nav__label">Dashboard</span></button></li>
+      <li><button type="button" class="section-nav__item" data-section="6" aria-label="Neural network"><span class="section-nav__dot" aria-hidden="true"></span><span class="section-nav__label">Neural Network</span></button></li>
+      <li><button type="button" class="section-nav__item" data-section="7" aria-label="What-if analysis"><span class="section-nav__dot" aria-hidden="true"></span><span class="section-nav__label">What-If</span></button></li>
+      <li><button type="button" class="section-nav__item" data-section="8" aria-label="Certainty-factor expert system"><span class="section-nav__dot" aria-hidden="true"></span><span class="section-nav__label">Certainty Factor</span></button></li>
+      <li><button type="button" class="section-nav__item" data-section="9" aria-label="Testing and evaluation"><span class="section-nav__dot" aria-hidden="true"></span><span class="section-nav__label">Testing</span></button></li>
+      <li><button type="button" class="section-nav__item" data-section="10" aria-label="Limitations and future improvements"><span class="section-nav__dot" aria-hidden="true"></span><span class="section-nav__label">Limitations</span></button></li>
+      <li><button type="button" class="section-nav__item" data-section="11" aria-label="Walkthrough and demo"><span class="section-nav__dot" aria-hidden="true"></span><span class="section-nav__label">Walkthrough</span></button></li>
+      <li><button type="button" class="section-nav__item" data-section="12" aria-label="Presenting to client"><span class="section-nav__dot" aria-hidden="true"></span><span class="section-nav__label">Client</span></button></li>
+    </ul>
+  </nav>
 
   <div class="scroll-progress-track" aria-hidden="true" role="presentation">
     <div class="scroll-progress-bar" id="scroll-progress" aria-hidden="true"></div>
@@ -36,7 +38,7 @@
 
   <main class="scrolly-container">
 
-    <aside class="sticky-visual" aria-label="Presentation visuals">
+    <aside class="sticky-visual" aria-label="Presentation visuals" style="height: 105vh;">
 
       <!-- §1 Problem -->
       <div class="visual-state is-active" data-section="1" data-substep="a">
@@ -69,7 +71,8 @@
           <span class="visual-card__label">Section 2 · Step 1</span>
           <h2 class="visual-card__title">Raw export</h2>
           <p class="visual-card__stat">203,300</p>
-          <p class="visual-card__hint">GameFish_Releases_Master.csv</p>
+          <p class="visual-card__hint">NSW Fisheries API · GameFish_Releases_Master.csv</p>
+          <p class="visual-card__hint visual-card__hint--small">Starting dataset (no weather columns yet)</p>
         </div>
         <div class="pipeline-viz" aria-hidden="true">
           <div class="pipeline-step is-highlight">Raw export</div>
@@ -85,7 +88,8 @@
           <span class="visual-card__label">Section 2 · Step 2</span>
           <h2 class="visual-card__title">Enrichment</h2>
           <p class="visual-card__stat">203,300</p>
-          <p class="visual-card__hint">+ moon phase, wind, rain columns</p>
+          <p class="visual-card__hint">Δ 0 rows from raw export</p>
+          <p class="visual-card__hint visual-card__hint--small">+ moon phase, wind, rain via Open-Meteo Historical Weather API</p>
         </div>
         <div class="pipeline-viz" aria-hidden="true">
           <div class="pipeline-step">Raw export</div>
@@ -100,7 +104,8 @@
           <span class="visual-card__label">Section 2 · Step 3</span>
           <h2 class="visual-card__title">Weather subset</h2>
           <p class="visual-card__stat">49,893</p>
-          <p class="visual-card__hint">Weather_GameFish_Releases_enriched.csv</p>
+          <p class="visual-card__hint">Δ −153,407 rows from enrichment</p>
+          <p class="visual-card__hint visual-card__hint--small">Rows without usable wind/rain API coverage removed</p>
         </div>
         <div class="pipeline-viz" aria-hidden="true">
           <div class="pipeline-step">Raw export</div>
@@ -115,7 +120,8 @@
           <span class="visual-card__label">Section 2 · Final</span>
           <h2 class="visual-card__title">Primary dataset</h2>
           <p class="visual-card__stat">41,440</p>
-          <p class="visual-card__hint">Cleaned_Weather_GameFish_Releases_enriched.csv</p>
+          <p class="visual-card__hint">Δ −8,453 rows from weather subset</p>
+          <p class="visual-card__hint visual-card__hint--small">Length/weight filter · Sea_Surface_Temp_C column excluded (100% null)</p>
         </div>
         <div class="pipeline-viz" aria-hidden="true">
           <div class="pipeline-step">Raw export</div>
@@ -150,11 +156,7 @@
           <h2 class="visual-card__title">Power BI reference</h2>
           <p class="visual-card__hint">Business-intelligence dashboard</p>
         </div>
-        <div class="visual-placeholder" role="img" aria-label="Power BI reference — add assets/images/prototypes/powerbi-reference.png">
-          <span class="visual-placeholder__label">Screenshot needed</span>
-          <span class="visual-placeholder__name">Power BI reference</span>
-          <code class="visual-placeholder__path">assets/images/prototypes/powerbi-reference.png</code>
-        </div>
+        <img class="visual-image" src="assets/images/prototypes/powerbi-reference.png" alt="Power BI reference dashboard from the prototype evolution stage" loading="lazy" width="420" height="236">
       </div>
 
       <!-- §4 Spreadsheet -->
@@ -165,11 +167,7 @@
           <p class="visual-card__stat">18,225</p>
           <p class="visual-card__hint">rows in NESA_AT3b_Spreadsheet_Weather.xlsx</p>
         </div>
-        <div class="visual-placeholder" role="img" aria-label="Excel spreadsheet — add assets/images/spreadsheet/spreadsheet-screenshot.png">
-          <span class="visual-placeholder__label">Screenshot needed</span>
-          <span class="visual-placeholder__name">Spreadsheet evidence</span>
-          <code class="visual-placeholder__path">assets/images/spreadsheet/spreadsheet-screenshot.png</code>
-        </div>
+        <img class="visual-image" src="assets/images/spreadsheet/spreadsheet-screenshot.png" alt="Excel spreadsheet showing cleansed game-fish tagging data and Weight_Classification formula" loading="lazy" width="420" height="236">
       </div>
 
       <!-- §5 Power BI dashboard evidence -->
@@ -179,11 +177,7 @@
           <h2 class="visual-card__title">Dashboard evidence</h2>
           <p class="visual-card__hint">Power BI · screenshot reference only</p>
         </div>
-        <div class="visual-placeholder" role="img" aria-label="Power BI dashboard — add assets/images/dashboard/dashboard-screenshot.png">
-          <span class="visual-placeholder__label">Screenshot needed</span>
-          <span class="visual-placeholder__name">Power BI dashboard</span>
-          <code class="visual-placeholder__path">assets/images/dashboard/dashboard-screenshot.png</code>
-        </div>
+        <img class="visual-image" src="assets/images/dashboard/dashboard-screenshot.png" alt="Power BI dashboard showing game-fish tagging visualisations and filters" loading="lazy" width="420" height="236">
       </div>
 
       <!-- §6 Neural network -->
@@ -208,16 +202,17 @@
         <div class="visual-card">
           <span class="visual-card__label">Section 6 · Metrics</span>
           <h2 class="visual-card__title">Model evaluation</h2>
-          <p class="visual-card__stat">62.2%</p>
+          <p class="visual-card__stat">63.4%</p>
           <p class="visual-card__hint">accuracy · 13 species classes</p>
+          <p class="visual-card__hint visual-card__hint--small">80% training / 20% testing split (stratified)</p>
         </div>
         <dl class="metrics-grid">
-          <div><dt>Macro F1</dt><dd>54.7%</dd></div>
-          <div><dt>Weighted F1</dt><dd>61.0%</dd></div>
-          <div><dt>Train rows</dt><dd>33,152</dd></div>
-          <div><dt>Test rows</dt><dd>8,288</dd></div>
+          <div><dt>Macro F1</dt><dd>56.3%</dd></div>
+          <div><dt>Weighted F1</dt><dd>62.1%</dd></div>
+          <div><dt>Train (80%)</dt><dd>33,152</dd></div>
+          <div><dt>Test (20%)</dt><dd>8,288</dd></div>
         </dl>
-        <img class="visual-image visual-image--compact" src="assets/images/neural-network/metrics.png" alt="Neural Network Explorer showing 62.2% accuracy, confusion matrix, and per-class metrics" loading="lazy" width="400" height="250">
+        <img class="visual-image visual-image--compact" src="assets/images/neural-network/metrics.png" alt="Neural Network Explorer showing 63.4% accuracy, confusion matrix, and per-class metrics" loading="lazy" width="400" height="250">
       </div>
 
       <!-- §7 What-if analysis -->
@@ -300,18 +295,13 @@
         <div class="visual-card">
           <span class="visual-card__label">Section 9 · Testing</span>
           <h2 class="visual-card__title">Testing checklist (cont.)</h2>
-          <p class="visual-card__hint">Rule engine, spreadsheet, feature consistency</p>
+          <p class="visual-card__hint">Pass/fail summary shown in the checklist below</p>
         </div>
         <ul class="test-checklist">
           <li class="test-checklist__item test-checklist__item--pass"><span class="test-checklist__mark">✔</span> Certainty-factor rules</li>
           <li class="test-checklist__item test-checklist__item--pass"><span class="test-checklist__mark">✔</span> Spreadsheet generation</li>
           <li class="test-checklist__item test-checklist__item--pass"><span class="test-checklist__mark">✔</span> Dataset path / feature-column consistency</li>
         </ul>
-        <div class="visual-placeholder visual-placeholder--compact" role="img" aria-label="Testing checklist — add assets/images/testing/checklist.png">
-          <span class="visual-placeholder__label">Screenshot needed</span>
-          <span class="visual-placeholder__name">Testing checklist</span>
-          <code class="visual-placeholder__path">assets/images/testing/checklist.png</code>
-        </div>
       </div>
 
       <!-- §10 Limitations and future improvements -->
@@ -325,7 +315,7 @@
           <p class="limitations-card__heading">Known limitations</p>
           <ul>
             <li>Sea_Surface_Temp_C — 100% null, excluded</li>
-            <li>62.2% accuracy — useful, not perfect</li>
+            <li>63.4% accuracy — useful, not perfect</li>
             <li>Recreational catch data may be biased</li>
           </ul>
           <p class="limitations-card__heading">Future improvements</p>
@@ -351,18 +341,18 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
       <div class="visual-state" data-section="11" data-substep="b">
         <div class="visual-card">
           <span class="visual-card__label">Section 11 · Demo</span>
-          <h2 class="visual-card__title">Walkthrough video</h2>
-          <p class="visual-card__hint">Recorded demo covers all evidence below</p>
+          <h2 class="visual-card__title">Walkthrough steps</h2>
+          <p class="visual-card__hint">What the live demo shows, in order</p>
         </div>
-        <ul class="feature-list">
-          <li>Dataset cleaning evidence</li>
-          <li>Streamlit dashboard</li>
-          <li>Neural Network Explorer</li>
-          <li>What-If Analysis</li>
-          <li>Certainty-Factor Expert System</li>
-          <li>Generated spreadsheet</li>
-          <li>Power BI screenshot/reference</li>
-        </ul>
+        <ol class="feature-list walkthrough-steps">
+          <li>Launch the Streamlit dashboard and load the map</li>
+          <li>Filter by species, year, and month</li>
+          <li>Open the Neural Network Explorer and run a prediction</li>
+          <li>Adjust inputs in What-If Analysis and compare results</li>
+          <li>Evaluate a species with the Certainty-Factor Expert System</li>
+          <li>Review the generated Excel spreadsheet export</li>
+          <li>View the Power BI dashboard reference screenshots</li>
+        </ol>
         <div class="visual-placeholder visual-placeholder--compact" role="img" aria-label="Walkthrough video thumbnail — add assets/images/walkthrough/video-thumbnail.png">
           <span class="visual-placeholder__label">Video needed</span>
           <span class="visual-placeholder__name">Walkthrough thumbnail + link</span>
@@ -391,7 +381,7 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
           </ul>
           <p class="learnings-card__heading">Intelligent systems</p>
           <ul>
-            <li>~62% species prediction accuracy from context</li>
+            <li>~63% species prediction accuracy from context</li>
             <li>What-if shows why probabilities shift</li>
             <li>Expert system explains rules in plain English</li>
           </ul>
@@ -461,8 +451,8 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
           delivered.
         </p>
         <p>
-          The live Streamlit app runs locally for hands-on demo; this site explains the research
-          results for assessment and client review without hosting models or raw data files.
+          The live Streamlit app runs locally for hands-on demo; this site explains the project
+          results for client review without hosting models or raw data files.
         </p>
         <p class="step__note">
           Scroll through sections 2–11 for detailed evidence, then section 12 for a summary of
@@ -475,9 +465,14 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
         <span class="step__number">02a — DATA</span>
         <h2>Raw tagging export</h2>
         <p>
-          The pipeline begins with <code>GameFish_Releases_Master.csv</code> — the raw export
-          containing <strong>203,300</strong> game-fish tagging release records with species,
-          location, release date, length, and weight fields.
+          The pipeline begins with data pulled directly from the <strong>NSW Fisheries department
+          API</strong> for game-fish tagging releases — saved as
+          <code>GameFish_Releases_Master.csv</code> with <strong>203,300</strong> records
+          (species, location, release date, length, and weight). This original export does not
+          include weather data.
+        </p>
+        <p>
+          <strong>Row count:</strong> 203,300 (starting dataset).
         </p>
         <p>
           Earlier protected CSVs at each stage are kept in <code>newfishdata/</code> as
@@ -490,14 +485,15 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
         <h2>Weather and moon enrichment</h2>
         <p>
           <code>scripts/enrich_fish_data.py</code> enriches every row with moon phase, wind
-          direction, and rainfall (Open-Meteo API, batched by ~10&nbsp;nm grid cells and cached
-          in <code>enrichment_cache.csv</code>). Output:
-          <code>GameFish_Releases_Master_enriched.csv</code> — still <strong>203,300</strong> rows,
-          now with extra weather columns.
+          direction, and rainfall from the <strong>Open-Meteo Historical Weather API</strong>
+          (batched by ~10&nbsp;nm grid cells and cached in <code>enrichment_cache.csv</code>).
+          Output: <code>GameFish_Releases_Master_enriched.csv</code> — still
+          <strong>203,300</strong> rows, now with extra weather columns.
         </p>
         <p>
+          <strong>Change from previous stage:</strong> Δ 0 rows (columns added, no rows removed).
           Sea surface temperature was also fetched but returned <strong>100% null</strong> for
-          every row, so it was investigated and excluded from the final predictive model.
+          every row, so the <code>Sea_Surface_Temp_C</code> column was unusable and later excluded.
         </p>
       </section>
 
@@ -506,9 +502,13 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
         <h2>Weather-filtered subset</h2>
         <p>
           Only rows with usable <code>Wind_Direction_10m</code> and <code>Rain_mm</code> values
-          were kept (~24.5% of enriched rows had API coverage for their date/location). This
-          produced <code>Weather_GameFish_Releases_enriched.csv</code> with
+          were kept (~24.5% of enriched rows had Open-Meteo API coverage for their date/location).
+          This produced <code>Weather_GameFish_Releases_enriched.csv</code> with
           <strong>49,893</strong> rows.
+        </p>
+        <p>
+          <strong>Change from previous stage:</strong> Δ <strong>−153,407</strong> rows
+          (203,300 → 49,893).
         </p>
         <p class="step__note">
           Row count drops here because many older or remote records fall outside the weather
@@ -522,7 +522,12 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
         <p>
           Rows missing a recorded <code>Length</code> or <code>Weight</code> were removed,
           yielding <code>Cleaned_Weather_GameFish_Releases_enriched.csv</code> —
-          <strong>41,440 rows</strong>.
+          <strong>41,440 rows</strong>. The <code>Sea_Surface_Temp_C</code> column was also
+          filtered out at this stage because it was 100% null across the enriched dataset.
+        </p>
+        <p>
+          <strong>Change from previous stage:</strong> Δ <strong>−8,453</strong> rows
+          (49,893 → 41,440).
         </p>
         <p>
           This is the <strong>final primary dataset</strong> used by both the Streamlit app
@@ -575,6 +580,8 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
           filters, offline LLM summaries, and user ratings later fed the expert system.
         </p>
       </section>
+
+      <section class="step" data-section="3" data-substep="c">
         <span class="step__number">03c — PROTOTYPE</span>
         <h2>Stage 3: Power BI reference dashboard</h2>
         <p>
@@ -598,8 +605,8 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
         <p>
           <code>build_nesa_spreadsheet.py</code> generates
           <code>NESA_AT3b_Spreadsheet_Weather.xlsx</code> from the cleaned primary dataset.
-          It demonstrates data cleansing evidence required by the assessment: original enriched
-          data filtered to rows with complete species, location, and weight, then sampled to
+          It demonstrates cleansed data exports for clients: original enriched data filtered to
+          rows with complete species, location, and weight, then sampled to
           <strong>18,225 rows</strong> for the Excel workbook.
         </p>
         <p>
@@ -621,13 +628,12 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
         <h2>Power BI and dashboard evidence</h2>
         <p>
           The Power BI dashboard provides a second visualisation layer for the same underlying
-          tagging data — supporting the AT3b "construct visualisation" criterion with appropriate
-          charts, filters, and dashboard layout.
+          tagging data — with charts, filters, and a polished dashboard layout for reporting.
         </p>
         <p>
-          It complements the Streamlit app: Streamlit is the interactive submission surface for
-          intelligent systems; Power BI demonstrates business-intelligence visualisation skills
-          as a separate prototype stage.
+          It complements the Streamlit app: Streamlit is the interactive dashboard for maps and
+          intelligent systems; Power BI demonstrates business-intelligence visualisation as a
+          separate prototype stage.
         </p>
         <p class="step__note">
           Evidence on this website is shown via exported screenshots placed in
@@ -665,11 +671,15 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
         <span class="step__number">06b — NEURAL NET</span>
         <h2>Model evaluation and alignment</h2>
         <p>
-          Current evaluation metrics (80/20 stratified split):
-          <strong>62.2%</strong> accuracy,
-          <strong>54.7%</strong> macro F1,
-          <strong>61.0%</strong> weighted F1 —
-          trained on <strong>33,152</strong> rows, tested on <strong>8,288</strong>,
+          The model was evaluated using an <strong>80% / 20% train–test split</strong>
+          (stratified by species class): <strong>33,152</strong> rows for training and
+          <strong>8,288</strong> rows held out for testing.
+        </p>
+        <p>
+          Metrics on the test set:
+          <strong>63.4%</strong> accuracy,
+          <strong>56.3%</strong> macro F1,
+          <strong>62.1%</strong> weighted F1 —
           across <strong>13 classes</strong> (12 named species + an "Other" bucket).
         </p>
         <p>
@@ -683,7 +693,7 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
         </p>
         <p class="step__note step__note--learned">
           <strong>What we learnt:</strong> location, season, and weather explain part of species
-          patterns (~62% accuracy) — useful for guidance, not a guarantee of catch.
+          patterns (~63% accuracy) — useful for guidance, not a guarantee of catch.
         </p>
       </section>
       <section class="step step-anchor" id="section-7" data-section="7" data-substep="a">
@@ -691,8 +701,8 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
         <h2>What-if analysis</h2>
         <p>
           The What-If Analysis panel in the Streamlit app lets users adjust fishing context
-          variables and see how species predictions change — directly addressing the AT3b
-          requirement for appropriate what-if analysis.
+          variables and see how species predictions change — showing how each input affects
+          the model's predicted likelihood.
         </p>
         <p>
           <strong>Adjustable inputs:</strong> month, wind direction, rain amount, is-raining,
@@ -730,7 +740,7 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
           The second intelligent system uses explicit IF-THEN rules and a running certainty score
           — implemented in <code>BasicProduction/certainty_factor.py</code> and shown in the
           Streamlit app alongside the neural network. It complements the data-driven model with
-          rule-based reasoning a marker can read step by step.
+          rule-based reasoning clients can follow step by step.
         </p>
         <p>
           <strong>Rules and points:</strong> Species exists (+10), Season match (+25),
@@ -811,8 +821,9 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
           feature-mismatch bug).
         </p>
         <p class="step__note">
-          All checks above were performed manually during development; results are summarised
-          here as pass/fail evidence for the marker.
+          The pass/fail checklist in the <strong>left visual panel</strong> (sections 9a and 9b)
+          summarises each quality check — so you can see at a glance which parts of the system
+          were verified during development.
         </p>
       </section>
 
@@ -822,7 +833,7 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
         <h2>Limitations and future improvements</h2>
         <p>
           <strong>Known limitations:</strong> <code>Sea_Surface_Temp_C</code> was 100% null across
-          the enriched dataset and was removed from all active models. Model accuracy (62.2%) is
+          the enriched dataset and was removed from all active models. Model accuracy (63.4%) is
           useful for guidance but not perfect — it reflects patterns in historical data, not a
           guarantee. Historical recreational catch data may also be biased toward popular fishing
           spots, active anglers, and reported (rather than all) catches.
@@ -856,15 +867,19 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
 
       <section class="step" data-section="11" data-substep="b">
         <span class="step__number">11b — WALKTHROUGH</span>
-        <h2>What the walkthrough video shows</h2>
-        <p>The recorded demo covers, in order:</p>
-        <p>
-          Dataset cleaning evidence, the Streamlit dashboard, the Neural Network Explorer, the
-          What-If Analysis panel, the Certainty-Factor Expert System, the generated
-          spreadsheet, and the Power BI screenshot/reference.
-        </p>
+        <h2>Walkthrough steps</h2>
+        <p>The live demo walks through the system in this order:</p>
+        <ol>
+          <li><strong>Launch the Streamlit app</strong> — load the interactive map and dataset.</li>
+          <li><strong>Filter the map</strong> — choose species, year, and month to explore catch patterns.</li>
+          <li><strong>Neural Network Explorer</strong> — run a species prediction from location, time, and weather.</li>
+          <li><strong>What-If Analysis</strong> — change month, wind, rain, moon phase, or location and compare probabilities.</li>
+          <li><strong>Certainty-Factor Expert System</strong> — evaluate a species with rule-based scoring and plain-English explanations.</li>
+          <li><strong>Spreadsheet export</strong> — review the generated Excel workbook with cleansed data and formulae.</li>
+          <li><strong>Power BI reference</strong> — view dashboard screenshots for reporting-style visualisations.</li>
+        </ol>
         <p class="step__note">
-          Video link/thumbnail to be added once recorded — see the placeholder in the visual panel.
+          A recorded walkthrough video can be linked from the visual panel once available.
         </p>
       </section>
 
@@ -890,7 +905,7 @@ python3 -m streamlit run BasicProduction/fish_app.py</code></pre>
         </ul>
         <p><strong>From intelligent systems:</strong></p>
         <ul>
-          <li>Species can be predicted ~62% accurately from location, time, and weather features.</li>
+          <li>Species can be predicted ~63% accurately from location, time, and weather features.</li>
           <li>What-if analysis shows how changing context shifts probabilities.</li>
           <li>The certainty-factor expert system explains recommendations in plain English.</li>
         </ul>
