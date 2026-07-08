@@ -10,6 +10,7 @@ __pycache__/
 venv/
 .venv/
 
+
 # OS / editor
 .DS_Store
 .vscode/
@@ -26,6 +27,7 @@ incoming_data/**
 /scripts/certainty-factor-flowchart.mmd
 /scripts/certainty-factor-decision-tree.mmd
 /PROTOTYPE_EVOLUTION.md
+
 
 /PROTOTYPES_3.2.1b.md
 /SECTION_4_1_OVERVIEW_NOTES.md
