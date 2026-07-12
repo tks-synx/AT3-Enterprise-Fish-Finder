@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Folder>
+    <name>Fisheries Heatmap</name>
+    <GroundOverlay>
+      <name>Density Heatmap</name>
+      <Icon>
+        <href>overlay_image.png</href>
+      </Icon>
+      <LatLonBox>
+        <north>-32.874999996</north>
+        <south>-35.375000004</south>
+        <east>152.75833300000002</east>
+        <west>150.658333</west>
+      </LatLonBox>
+    </GroundOverlay>
+  </Folder>
+</kml>

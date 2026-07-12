@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Folder>
+    <name>THRESHER SHARK Heatmap</name>
+    <GroundOverlay>
+      <name>THRESHER SHARK Density</name>
+      <Icon>
+        <href>thresher_shark_overlay.png</href>
+      </Icon>
+      <LatLonBox>
+        <north>-19.54166667</north>
+        <south>-45.04166667</south>
+        <east>157.71666666670012</east>
+        <west>110.11666666630003</west>
+      </LatLonBox>
+    </GroundOverlay>
+  </Folder>
+</kml>
