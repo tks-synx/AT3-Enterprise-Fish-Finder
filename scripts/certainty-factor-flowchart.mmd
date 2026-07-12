@@ -1,0 +1,67 @@
+%% Certainty-Factor Expert System — IF-THEN flowchart
+%% Sources: scripts/IF-THEN.md, scripts/CertaintyFactors.md, BasicProduction/certainty_factor.py
+%%
+%% draw.io: Arrange → Insert → Advanced → Mermaid → paste this file
+%% Or: https://mermaid.live
+
+flowchart TD
+    START([START]) --> INPUT["User selects fishing request<br/>(species, month, map location)"]
+    INPUT --> READ["System reads context<br/>species · month · lat/lon · wind · rain · moon phase"]
+    READ --> R1{IF species exists<br/>in historical dataset?}
+
+    R1 -->|NO| OUT0["THEN return Insufficient data<br/>score = 0 · no recommendation"]
+    OUT0 --> END([END])
+
+    R1 -->|YES| R1Y["THEN continue expert analysis<br/>+10 Species exists"]
+    R1Y --> R2{IF selected month is among<br/>species' top 4 historical months?}
+
+    R2 -->|YES| R2Y["THEN +25 Season match"]
+    R2 -->|NO| R2N["No season points"]
+    R2Y --> R3
+    R2N --> R3
+
+    R3{IF catch density in local area<br/>~10 nm grid + similar conditions?}
+    R3 -->|≥ 20 catches| R3H["THEN +35 High catch density"]
+    R3 -->|5–19 catches| R3M["THEN +20 Medium catch density"]
+    R3 -->|1–4 catches| R3L["THEN +5 Low catch density"]
+    R3 -->|0 catches| R3N["No catch-density points"]
+    R3H --> R4
+    R3M --> R4
+    R3L --> R4
+    R3N --> R4
+
+    R4{IF location inside species'<br/>typical lat/lon range<br/>5th–95th percentile?}
+    R4 -->|YES| R4Y["THEN +25 Location match"]
+    R4 -->|NO| R4N["No location points"]
+    R4Y --> R5
+    R4N --> R5
+
+    R5{IF user has positive feedback<br/>for this species or month?}
+    R5 -->|YES| R5Y["THEN +15 User preference match"]
+    R5 -->|NO| R5N["No preference points"]
+    R5Y --> SUM
+    R5N --> SUM
+
+    SUM["Calculate final certainty score<br/>(sum of fired rules · max 110)"] --> R6{IF total score ≥ 75?}
+    R6 -->|YES| STRONG["THEN Strong recommendation 🟢"]
+    R6 -->|NO| R7{IF total score 45–74?}
+    R7 -->|YES| MOD["THEN Moderate recommendation 🟡"]
+    R7 -->|NO| R8{IF total score 1–44?}
+    R8 -->|YES| WEAK["THEN Weak recommendation 🔴<br/>Advise changing species, season, or location"]
+    R8 -->|NO| OUT0B["Insufficient data<br/>(score = 0)"]
+    STRONG --> OUTPUT["Output: species · score · band · rules fired · plain-English explanation"]
+    MOD --> OUTPUT
+    WEAK --> OUTPUT
+    OUT0B --> OUTPUT
+    OUTPUT --> END
+
+    %% Styling (optional — draw.io may ignore some theme keys)
+    classDef decision fill:#1a3344,stroke:#3db8c4,color:#e8f0f4
+    classDef action fill:#122636,stroke:#8fa8b8,color:#e8f0f4
+    classDef outcome fill:#0c1a24,stroke:#2f9e44,color:#e8f0f4
+    classDef fail fill:#0c1a24,stroke:#c44,color:#e8f0f4
+
+    class R1,R2,R3,R4,R5,R6,R7,R8 decision
+    class R1Y,R2Y,R3H,R3M,R3L,R4Y,R5Y,SUM action
+    class STRONG,MOD,WEAK,OUTPUT outcome
+    class OUT0,OUT0B fail

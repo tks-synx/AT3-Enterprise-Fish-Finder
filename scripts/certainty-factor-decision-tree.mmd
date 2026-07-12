@@ -1,0 +1,87 @@
+%% Certainty-Factor Expert System — Decision Tree
+%% Assessment artefact: decision tree representing certainty factors
+%% Sources: scripts/CertaintyFactors.md, scripts/IF-THEN.md, BasicProduction/certainty_factor.py
+%%
+%% draw.io: Arrange → Insert → Advanced → Mermaid → paste this file
+%% Or: https://mermaid.live
+
+flowchart TD
+    ROOT(["ROOT<br/>Certainty-Factor Expert System<br/>Evaluate species + context"])
+
+    ROOT --> D1{"Decision 1<br/>Species in<br/>historical dataset?"}
+
+    D1 -->|No| L0(["LEAF<br/>CF = 0<br/>Insufficient data<br/>Stop — no further rules"])
+    D1 -->|Yes| P1["CF += 10<br/>Species exists"]
+
+    P1 --> D2{"Decision 2<br/>Month in species'<br/>top 4 historical months?"}
+    D2 -->|Yes| P2Y["CF += 25<br/>Season match"]
+    D2 -->|No| P2N["CF += 0<br/>Season mismatch"]
+    P2Y --> D3
+    P2N --> D3
+
+    D3{"Decision 3<br/>Historical catch density<br/>in local ~10 nm grid<br/>+ similar weather?"}
+    D3 -->|≥ 20 catches| P3H["CF += 35<br/>High density"]
+    D3 -->|5–19 catches| P3M["CF += 20<br/>Medium density"]
+    D3 -->|1–4 catches| P3L["CF += 5<br/>Low density"]
+    D3 -->|0 catches| P3N["CF += 0<br/>No density match"]
+    P3H --> D4
+    P3M --> D4
+    P3L --> D4
+    P3N --> D4
+
+    D4{"Decision 4<br/>Location inside species'<br/>typical lat/lon range<br/>5th–95th percentile?"}
+    D4 -->|Yes| P4Y["CF += 25<br/>Location match"]
+    D4 -->|No| P4N["CF += 0<br/>Outside range"]
+    P4Y --> D5
+    P4N --> D5
+
+    D5{"Decision 5<br/>User positive feedback<br/>for species or month?"}
+    D5 -->|Yes| P5Y["CF += 15<br/>Preference match"]
+    D5 -->|No| P5N["CF += 0<br/>No preference bonus"]
+    P5Y --> SUM
+    P5N --> SUM
+
+    SUM(["Internal node<br/>Total CF score<br/>Sum of fired rules<br/>Maximum = 110"])
+
+    SUM --> D6{"Decision 6<br/>Total CF ≥ 75?"}
+    D6 -->|Yes| LSTRONG(["LEAF<br/>Strong recommendation 🟢"])
+    D6 -->|No| D7{"Decision 7<br/>Total CF 45–74?"}
+    D7 -->|Yes| LMOD(["LEAF<br/>Moderate recommendation 🟡"])
+    D7 -->|No| D8{"Decision 8<br/>Total CF 1–44?"}
+    D8 -->|Yes| LWEAK(["LEAF<br/>Weak recommendation 🔴<br/>Change species, season, or location"])
+    D8 -->|No| LINS(["LEAF<br/>Insufficient data<br/>CF = 0"])
+
+    LSTRONG --> OUT(["Output node<br/>Species · CF score · band · rules table · explanation"])
+    LMOD --> OUT
+    LWEAK --> OUT
+    LINS --> OUT
+    L0 --> OUT
+
+    subgraph LEGEND["Certainty factor reference (scripts/CertaintyFactors.md)"]
+        direction TB
+        T1["Species exists → +10"]
+        T2["Season match → +25"]
+        T3["Catch density high / medium / low → +35 / +20 / +5"]
+        T4["Location match → +25"]
+        T5["User preference match → +15"]
+        T6["Max possible score → 110"]
+    end
+
+    classDef root fill:#3db8c4,stroke:#e8f0f4,color:#0c1a24,font-weight:bold
+    classDef decision fill:#1a3344,stroke:#3db8c4,color:#e8f0f4
+    classDef points fill:#122636,stroke:#8fa8b8,color:#e8f0f4
+    classDef leafStrong fill:#0c1a24,stroke:#2f9e44,color:#e8f0f4
+    classDef leafMod fill:#0c1a24,stroke:#c9a227,color:#e8f0f4
+    classDef leafWeak fill:#0c1a24,stroke:#c44,color:#e8f0f4
+    classDef leafFail fill:#0c1a24,stroke:#666,color:#8fa8b8
+    classDef sum fill:#1a3344,stroke:#5dd4de,color:#e8f0f4,font-weight:bold
+
+    class ROOT root
+    class D1,D2,D3,D4,D5,D6,D7,D8 decision
+    class P1,P2Y,P2N,P3H,P3M,P3L,P3N,P4Y,P4N,P5Y,P5N points
+    class SUM sum
+    class LSTRONG leafStrong
+    class LMOD leafMod
+    class LWEAK leafWeak
+    class L0,LINS leafFail
+    class OUT points
