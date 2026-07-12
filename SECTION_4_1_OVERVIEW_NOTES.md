@@ -283,3 +283,14 @@ stay within the page guide.</span>
   (e.g. keep the feature-mismatch fix and the SST fix, drop less detailed ones).
 - <span style="color:#1d4ed8">🔵 Have you addressed at least 2–3 of the AT3a-vs-final-build gaps in Section 6 (not
   all 8 — pick the strongest), rather than only listing requirements you met?</span>
+
+Similarly, what this file can also allow you to do, is the actually change what files you also do want, by using the .gitkeep file. Which is pretty much just the opposite to this.
+so yeah, pretty cool if you ask me, and i hope that this will let me get good marks for my assessment tasks!
+now! what to do for getting 5mins in only 3 mins XD
+erm so im cooked pretty much, that is good to know XD.
+so uh yeha ggs sob bro... sob...
+nooo i tried </3 this is way mroe than 5 mins bro!
+oh well ig 
+unlucky me! > </>
+noooo!
+but yeah, so this is defintely unfortunate ig

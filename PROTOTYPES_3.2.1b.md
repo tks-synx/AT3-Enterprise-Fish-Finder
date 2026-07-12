@@ -34,7 +34,7 @@ flowchart LR
 | 5 | Intelligent systems | `train_species_nn.py`, `certainty_factor.py` | Neural network + certainty-factor expert system in Streamlit |
 | 6 | Presentation | `presentation_site/` | Explains prototypes and evidence to the marker (not the live app) |
 
----
+--- 
 
 ## Prototype 1 — Static KML/PNG heatmap (Stage 1)
 
