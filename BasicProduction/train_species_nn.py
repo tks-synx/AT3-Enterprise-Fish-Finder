@@ -14,7 +14,7 @@ from sklearn.preprocessing import StandardScaler
 # Change Wind Speed to Wind Direction 
 
 INPUT_FILE = os.path.join(
-    os.path.dirname(__file__), '..', 'newfishdata', 'GameFish_Releases_Master_enriched.csv'
+    os.path.dirname(__file__), '..', 'newfishdata', 'Cleaned_Weather_GameFish_Releases_enriched.csv'
 )
 MODEL_FILE = os.path.join(os.path.dirname(__file__), 'fish_species_nn.joblib')
 LAT_COL = 'Latitude'
@@ -32,7 +32,6 @@ FEATURE_COLUMNS = [
     'Wind_Direction_Cos',
     'Rain_mm',
     'Is_Raining',
-    'Sea_Surface_Temp_C',
 ]
 TOP_SPECIES_LIMIT = 12
 MIN_CLASS_SAMPLES = 75
@@ -80,10 +79,8 @@ def add_cyclic_features(df: pd.DataFrame) -> pd.DataFrame:
     else:
         df['Is_Raining'] = np.nan
 
-    if 'Sea_Surface_Temp_C' in df.columns:
-        df['Sea_Surface_Temp_C'] = pd.to_numeric(df['Sea_Surface_Temp_C'], errors='coerce')
-    else:
-        df['Sea_Surface_Temp_C'] = np.nan
+    # Sea_Surface_Temp_C was dropped from the final model because
+    # enrichment returned no usable values (100% null in the protected datasets).
     return df
 
 
@@ -120,7 +117,8 @@ def load_data(input_path: str, max_rows: int) -> pd.DataFrame:
 
 def train_model(df: pd.DataFrame, model_path: str):
     model_frame = df[[LAT_COL, LON_COL, 'Year', 'Month_Number', SPECIES_COL]].dropna().copy()
-    model_frame = model_frame.join(df[FEATURE_COLUMNS], how='left')
+    cols_to_add = [c for c in FEATURE_COLUMNS if c not in model_frame.columns]
+    model_frame = model_frame.join(df[cols_to_add], how='left')
     class_counts = model_frame[SPECIES_COL].value_counts()
     kept_species = class_counts[class_counts >= MIN_CLASS_SAMPLES].head(TOP_SPECIES_LIMIT).index.tolist()
     if len(kept_species) < 2:
@@ -157,7 +155,9 @@ def train_model(df: pd.DataFrame, model_path: str):
             alpha=1e-4,
             batch_size=128,
             learning_rate_init=0.001,
-            max_iter=220,
+            learning_rate='adaptive',
+            max_iter=1000,
+            n_iter_no_change=20,
             early_stopping=False,  # Disabled due to compatibility with some Python/NumPy environments
             random_state=RANDOM_STATE,
         )),

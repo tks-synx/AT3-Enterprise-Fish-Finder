@@ -19,6 +19,8 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
+from certainty_factor import evaluate_certainty_factor
+
 # Try to import ollama - if not installed, show setup message
 try:
     import ollama
@@ -32,7 +34,9 @@ except ImportError:
 
 
 # ================= CONFIGURATION =================
-INPUT_FILE = os.path.join(os.path.dirname(__file__), '..', 'newfishdata', 'GameFish_Releases_Master.csv')
+INPUT_FILE = os.path.join(
+    os.path.dirname(__file__), '..', 'newfishdata', 'Cleaned_Weather_GameFish_Releases_enriched.csv'
+)
 LAT_COL = 'Latitude'      
 LON_COL = 'Longitude'      
 SPECIES_COL = 'Species_Name'  
@@ -48,7 +52,18 @@ FEEDBACK_CATEGORIES = [
 ]
 VESSEL_TYPES = ['Displacement', 'Semi-planing', 'Planing']
 DEFAULT_SYDNEY_SPEED_LIMIT_KN = 4.0
-NN_FEATURE_COLUMNS = ['Latitude', 'Longitude', 'Year', 'Month_Number']
+NN_FEATURE_COLUMNS = [
+    'Latitude',
+    'Longitude',
+    'Year',
+    'Month_Number',
+    'Moon_Phase_Sin',
+    'Moon_Phase_Cos',
+    'Wind_Direction_Sin',
+    'Wind_Direction_Cos',
+    'Rain_mm',
+    'Is_Raining',
+]
 NN_TOP_SPECIES_LIMIT = 12
 NN_MIN_CLASS_SAMPLES = 75
 NN_TEST_SIZE = 0.2
@@ -166,10 +181,43 @@ def load_data():
         df['Month_Name'] = df['Date_Obj'].dt.month_name()
         df = df.dropna(subset=[SPECIES_COL])
         df[SPECIES_COL] = df[SPECIES_COL].astype(str).str.strip()
+        df = add_model_features(df)
         
         return df, "Success"
     except Exception as e:
         return None, f"Critical Error: {str(e)}"
+
+
+def add_model_features(df: pd.DataFrame) -> pd.DataFrame:
+    if 'Moon_Phase' in df.columns:
+        moon = pd.to_numeric(df['Moon_Phase'], errors='coerce')
+    else:
+        moon = pd.Series(np.nan, index=df.index)
+    moon_rad = 2 * np.pi * moon
+    df['Moon_Phase_Sin'] = np.sin(moon_rad)
+    df['Moon_Phase_Cos'] = np.cos(moon_rad)
+
+    if 'Wind_Direction_10m' in df.columns:
+        wind = pd.to_numeric(df['Wind_Direction_10m'], errors='coerce')
+    else:
+        wind = pd.Series(np.nan, index=df.index)
+    wind_rad = np.deg2rad(wind)
+    df['Wind_Direction_Sin'] = np.sin(wind_rad)
+    df['Wind_Direction_Cos'] = np.cos(wind_rad)
+
+    if 'Rain_mm' in df.columns:
+        df['Rain_mm'] = pd.to_numeric(df['Rain_mm'], errors='coerce')
+    else:
+        df['Rain_mm'] = np.nan
+
+    if 'Is_Raining' in df.columns:
+        df['Is_Raining'] = pd.to_numeric(df['Is_Raining'], errors='coerce')
+    else:
+        df['Is_Raining'] = np.nan
+
+    # Sea_Surface_Temp_C is intentionally excluded because enrichment
+    # produced no usable values (100% null), so it is not a model feature.
+    return df
 
 df, status_msg = load_data()
 
@@ -1110,22 +1158,152 @@ def run_nn_ollama_explanation(model_info):
         return f'Ollama explanation failed: {exc}'
 
 
-def build_context_prediction_features(data_frame):
+def get_model_feature_columns(model_info):
+    configured = model_info.get('feature_columns')
+    if isinstance(configured, list) and configured and all(isinstance(item, str) for item in configured):
+        return configured
+    return list(NN_FEATURE_COLUMNS)
+
+
+def build_prediction_features_from_row(row, feature_columns):
+    payload = {}
+    for feature_name in feature_columns:
+        value = row.get(feature_name, np.nan)
+        numeric_value = pd.to_numeric(pd.Series([value]), errors='coerce').iloc[0]
+        if pd.isna(numeric_value):
+            payload[feature_name] = np.nan
+        elif feature_name in ['Year', 'Month_Number']:
+            payload[feature_name] = int(numeric_value)
+        else:
+            payload[feature_name] = float(numeric_value)
+    return pd.DataFrame([payload], columns=feature_columns)
+
+
+def build_context_prediction_features(data_frame, feature_columns):
     if data_frame is None or data_frame.empty:
         return None
 
-    usable_frame = data_frame.dropna(subset=NN_FEATURE_COLUMNS).copy()
-    if usable_frame.empty:
+    working_frame = data_frame.copy()
+    for feature_name in feature_columns:
+        if feature_name not in working_frame.columns:
+            working_frame[feature_name] = np.nan
+
+    required_context_features = [LAT_COL, LON_COL, 'Year', 'Month_Number']
+    if any(feature_name not in working_frame.columns for feature_name in required_context_features):
+        return None
+    if working_frame.dropna(subset=required_context_features).empty:
         return None
 
-    return pd.DataFrame([
-        {
-            LAT_COL: float(usable_frame[LAT_COL].mean()),
-            LON_COL: float(usable_frame[LON_COL].mean()),
-            'Year': int(usable_frame['Year'].mode().iloc[0]),
-            'Month_Number': int(usable_frame['Month_Number'].mode().iloc[0]),
-        }
-    ])
+    payload = {}
+    for feature_name in feature_columns:
+        column = pd.to_numeric(working_frame[feature_name], errors='coerce')
+        if feature_name in ['Year', 'Month_Number']:
+            modes = column.dropna().mode()
+            payload[feature_name] = int(modes.iloc[0]) if not modes.empty else np.nan
+        else:
+            payload[feature_name] = float(column.mean()) if column.notna().any() else np.nan
+
+    return pd.DataFrame([payload], columns=feature_columns)
+
+
+def month_name_to_number(month_name):
+    if month_name in month_order:
+        return month_order.index(month_name) + 1
+    return None
+
+
+def cyclical_to_degrees(sin_value, cos_value):
+    if pd.isna(sin_value) or pd.isna(cos_value):
+        return 0.0
+    radians = np.arctan2(float(sin_value), float(cos_value))
+    return (np.degrees(radians) + 360.0) % 360.0
+
+
+def cyclical_to_fraction(sin_value, cos_value):
+    if pd.isna(sin_value) or pd.isna(cos_value):
+        return 0.5
+    radians = np.arctan2(float(sin_value), float(cos_value))
+    return ((radians / (2 * np.pi)) + 1.0) % 1.0
+
+
+def build_probability_frame(model_info, feature_frame):
+    probabilities = model_info['model'].predict_proba(feature_frame)[0]
+    return pd.DataFrame({
+        'Species': model_info['classes'],
+        'Probability': probabilities,
+    }).sort_values('Probability', ascending=False)
+
+
+def build_adjusted_what_if_features(
+    baseline_features,
+    model_feature_columns,
+    selected_month_name,
+    selected_wind_direction,
+    selected_rain_mm,
+    selected_is_raining,
+    selected_moon_phase,
+    selected_latitude,
+    selected_longitude,
+):
+    adjusted = baseline_features.copy()
+    month_number = month_name_to_number(selected_month_name)
+
+    for feature_name in model_feature_columns:
+        if feature_name == LAT_COL:
+            adjusted.at[0, LAT_COL] = float(selected_latitude)
+        elif feature_name == LON_COL:
+            adjusted.at[0, LON_COL] = float(selected_longitude)
+        elif feature_name == 'Month_Number' and month_number is not None:
+            adjusted.at[0, 'Month_Number'] = int(month_number)
+        elif feature_name == 'Wind_Direction_Sin':
+            adjusted.at[0, 'Wind_Direction_Sin'] = float(np.sin(np.deg2rad(selected_wind_direction)))
+        elif feature_name == 'Wind_Direction_Cos':
+            adjusted.at[0, 'Wind_Direction_Cos'] = float(np.cos(np.deg2rad(selected_wind_direction)))
+        elif feature_name == 'Rain_mm':
+            adjusted.at[0, 'Rain_mm'] = float(selected_rain_mm)
+        elif feature_name == 'Is_Raining':
+            adjusted.at[0, 'Is_Raining'] = 1.0 if selected_is_raining else 0.0
+        elif feature_name == 'Moon_Phase_Sin':
+            adjusted.at[0, 'Moon_Phase_Sin'] = float(np.sin(2 * np.pi * selected_moon_phase))
+        elif feature_name == 'Moon_Phase_Cos':
+            adjusted.at[0, 'Moon_Phase_Cos'] = float(np.cos(2 * np.pi * selected_moon_phase))
+
+    return adjusted[model_feature_columns]
+
+
+# Shared colour/label styling for the certainty-factor engine (CFE) badge, reused by
+# both the main what-if panel and the target-species what-if panel below, so a CFE
+# result always looks the same wherever it appears in the AI dashboard.
+CERTAINTY_BADGE_STYLES = {
+    'strong': {'icon': '🟢', 'label': 'Strong', 'text_color': '#0f5c2e', 'background': '#d9f2df'},
+    'moderate': {'icon': '🟡', 'label': 'Moderate', 'text_color': '#8a6d00', 'background': '#fff3cd'},
+    'weak': {'icon': '🟠', 'label': 'Weak', 'text_color': '#9a3b00', 'background': '#ffe4d1'},
+    'insufficient': {'icon': '⚪', 'label': 'Insufficient Data', 'text_color': '#4a4a4a', 'background': '#e8e8e8'},
+}
+
+
+def render_certainty_badge(cf_result):
+    """Render a small coloured CFE badge: icon + strength label + score (if available).
+
+    cf_result is the dict returned by certainty_factor.evaluate_certainty_factor(),
+    or None/empty if a certainty-factor check has not been run for this result yet.
+    """
+    if not cf_result:
+        st.caption('CFE: not evaluated for this result.')
+        return
+
+    style = CERTAINTY_BADGE_STYLES.get(cf_result.get('band'), CERTAINTY_BADGE_STYLES['insufficient'])
+    score = cf_result.get('score')
+    max_score = cf_result.get('max_score')
+    score_text = f" &middot; {score}/{max_score}" if score is not None and max_score else ''
+
+    badge_html = (
+        '<div style="display:inline-block; padding: 0.3rem 0.85rem; border-radius: 999px; '
+        f'background:{style["background"]}; color:{style["text_color"]}; font-weight:600; font-size:0.9rem;">'
+        f'{style["icon"]} CFE: {style["label"]}{score_text}'
+        '</div>'
+    )
+    st.markdown(badge_html, unsafe_allow_html=True)
 
 
 def render_neural_network_dashboard(context_df=None):
@@ -1138,6 +1316,7 @@ def render_neural_network_dashboard(context_df=None):
             st.info('To train the model, run BasicProduction/train_species_nn.py in VS Code or the terminal, then reload the app.')
             return
 
+        model_feature_columns = get_model_feature_columns(model_info)
         st.caption(f"Model source: {model_info.get('source', 'trained')}")
 
         metric_col_1, metric_col_2, metric_col_3, metric_col_4 = st.columns(4)
@@ -1166,7 +1345,7 @@ def render_neural_network_dashboard(context_df=None):
         # Tab 2: Network Architecture
         with viz_tabs[1]:
             st.markdown('#### Neural Network Structure')
-            st.info('This neural network has 4 input features (Latitude, Longitude, Year, Month), two hidden layers with 64 and 32 neurons respectively, and outputs one probability per species class.')
+            st.info(f"This neural network uses {len(model_feature_columns)} input features (location, time, moon phase, wind direction, and rainfall), two hidden layers with 64 and 32 neurons respectively, and outputs one probability per species class.")
             arch_fig = plot_network_architecture()
             st.pyplot(arch_fig, clear_figure=True)
         
@@ -1176,14 +1355,18 @@ def render_neural_network_dashboard(context_df=None):
             st.caption('Shows how important each input feature is for making predictions (higher = more important).')
             try:
                 # Get training features and target
-                train_data = df[NN_FEATURE_COLUMNS + [SPECIES_COL]].dropna().copy()
-                X_importance = train_data[NN_FEATURE_COLUMNS].astype(float)
+                train_data = df.copy()
+                for feature_name in model_feature_columns:
+                    if feature_name not in train_data.columns:
+                        train_data[feature_name] = np.nan
+                train_data = train_data[model_feature_columns + [SPECIES_COL]].dropna(subset=[SPECIES_COL]).copy()
+                X_importance = train_data[model_feature_columns].astype(float)
                 y_importance = train_data[SPECIES_COL]
                 
                 if len(X_importance) > 0 and len(y_importance.unique()) > 1:
                     importances = compute_feature_importance(model_info['model'], X_importance, y_importance)
                     if importances is not None:
-                        fig = plot_feature_importance(importances, NN_FEATURE_COLUMNS)
+                        fig = plot_feature_importance(importances, model_feature_columns)
                         st.pyplot(fig, clear_figure=True)
                     else:
                         st.warning('Could not compute feature importance.')
@@ -1225,20 +1408,13 @@ def render_neural_network_dashboard(context_df=None):
                 st.caption('This is the easiest place to check whether the neural network is learning useful patterns.')
 
         sample_source = context_df if isinstance(context_df, pd.DataFrame) and not context_df.empty else df
-        sample_source = sample_source.dropna(subset=NN_FEATURE_COLUMNS + [SPECIES_COL])
+        sample_source = sample_source.dropna(subset=[SPECIES_COL, LAT_COL, LON_COL, 'Year', 'Month_Number'])
         if sample_source.empty:
             st.warning('No sample row is available for prediction preview.')
             return
 
         sample_row = sample_source.sample(1, random_state=NN_RANDOM_STATE).iloc[0]
-        sample_features = pd.DataFrame([
-            {
-                LAT_COL: float(sample_row[LAT_COL]),
-                LON_COL: float(sample_row[LON_COL]),
-                'Year': int(sample_row['Year']),
-                'Month_Number': int(sample_row['Month_Number']),
-            }
-        ])
+        sample_features = build_prediction_features_from_row(sample_row, model_feature_columns)
         prediction = model_info['model'].predict(sample_features)[0]
         probabilities = model_info['model'].predict_proba(sample_features)[0]
         probability_frame = pd.DataFrame({
@@ -1264,7 +1440,8 @@ def render_neural_network_dashboard(context_df=None):
         st.caption('Uses the active filtered map if one exists, otherwise it falls back to the full dataset.')
         if st.button('Predict current context', key='nn_context_predict'):
             context_features = build_context_prediction_features(
-                context_df if isinstance(context_df, pd.DataFrame) else df
+                context_df if isinstance(context_df, pd.DataFrame) else df,
+                model_feature_columns,
             )
             if context_features is None:
                 st.warning('No usable filtered rows are available for a context prediction.')
@@ -1290,6 +1467,558 @@ def render_neural_network_dashboard(context_df=None):
         if st.session_state[explanation_key]:
             st.markdown('#### Ollama explanation')
             st.write(st.session_state[explanation_key])
+
+
+def render_what_if_analysis_panel(context_df=None):
+    with st.container(border=True):
+        st.markdown('### What-If Analysis (Neural Network)')
+        st.caption(
+            'Adjust context inputs and compare baseline vs adjusted species probabilities. '
+            'This demonstrates what-if analysis for assessment evidence.'
+        )
+
+        model_info = load_species_neural_network()
+        if model_info.get('status') != 'ok':
+            st.warning(model_info.get('message', 'Neural network model could not be loaded.'))
+            return
+
+        model_feature_columns = get_model_feature_columns(model_info)
+        context_source = context_df if isinstance(context_df, pd.DataFrame) and not context_df.empty else df
+        baseline_features = build_context_prediction_features(context_source, model_feature_columns)
+
+        if baseline_features is None:
+            st.warning('No usable baseline context is available for what-if analysis.')
+            return
+
+        baseline_row = baseline_features.iloc[0]
+        baseline_month_number = int(pd.to_numeric(pd.Series([baseline_row.get('Month_Number', 1)]), errors='coerce').iloc[0] or 1)
+        baseline_month_number = min(max(baseline_month_number, 1), 12)
+        baseline_month_name = month_order[baseline_month_number - 1]
+
+        baseline_wind_direction = cyclical_to_degrees(
+            baseline_row.get('Wind_Direction_Sin', np.nan),
+            baseline_row.get('Wind_Direction_Cos', np.nan),
+        )
+        baseline_moon_phase = cyclical_to_fraction(
+            baseline_row.get('Moon_Phase_Sin', np.nan),
+            baseline_row.get('Moon_Phase_Cos', np.nan),
+        )
+        baseline_rain_mm = float(pd.to_numeric(pd.Series([baseline_row.get('Rain_mm', 0.0)]), errors='coerce').fillna(0.0).iloc[0])
+        baseline_is_raining = bool(pd.to_numeric(pd.Series([baseline_row.get('Is_Raining', 0.0)]), errors='coerce').fillna(0.0).iloc[0] >= 0.5)
+        baseline_latitude = float(pd.to_numeric(pd.Series([baseline_row.get(LAT_COL, 0.0)]), errors='coerce').fillna(0.0).iloc[0])
+        baseline_longitude = float(pd.to_numeric(pd.Series([baseline_row.get(LON_COL, 0.0)]), errors='coerce').fillna(0.0).iloc[0])
+
+        st.caption(
+            f'Baseline context: month {baseline_month_name}, wind {baseline_wind_direction:.0f}°, '
+            f'rain {baseline_rain_mm:.1f} mm, raining={baseline_is_raining}, '
+            f'moon phase {baseline_moon_phase:.2f}, lat/lon ({baseline_latitude:.2f}, {baseline_longitude:.2f}).'
+        )
+
+        with st.form('what_if_analysis_form'):
+            control_col_1, control_col_2, control_col_3 = st.columns(3)
+            with control_col_1:
+                what_if_month = st.selectbox(
+                    'Month',
+                    options=month_order,
+                    index=month_order.index(baseline_month_name),
+                    key='what_if_month',
+                )
+                what_if_wind = st.slider(
+                    'Wind direction (degrees)',
+                    min_value=0,
+                    max_value=359,
+                    value=int(round(baseline_wind_direction)),
+                    key='what_if_wind',
+                )
+            with control_col_2:
+                what_if_rain = st.number_input(
+                    'Rain amount (mm)',
+                    min_value=0.0,
+                    value=float(round(baseline_rain_mm, 2)),
+                    step=0.1,
+                    key='what_if_rain',
+                )
+                what_if_is_raining = st.checkbox(
+                    'Is raining',
+                    value=baseline_is_raining,
+                    key='what_if_is_raining',
+                )
+            with control_col_3:
+                what_if_moon_phase = st.slider(
+                    'Moon phase (0-1)',
+                    min_value=0.0,
+                    max_value=1.0,
+                    value=float(round(baseline_moon_phase, 2)),
+                    step=0.01,
+                    key='what_if_moon_phase',
+                )
+                what_if_latitude = st.number_input(
+                    'Latitude',
+                    value=float(round(baseline_latitude, 5)),
+                    format='%.5f',
+                    key='what_if_latitude',
+                )
+                what_if_longitude = st.number_input(
+                    'Longitude',
+                    value=float(round(baseline_longitude, 5)),
+                    format='%.5f',
+                    key='what_if_longitude',
+                )
+
+            compare_submitted = st.form_submit_button('Run what-if comparison')
+
+        if compare_submitted:
+            # Rebuild the baseline through the same rounding/reconstruction path as the
+            # adjusted inputs (rounded degrees/fraction -> sin/cos), rather than using the
+            # raw averaged sin/cos vector directly. Without this, leaving every control at
+            # its displayed default would still produce a different result to "baseline",
+            # since averaging sin and cos across many rows does not reproduce a clean
+            # unit-circle value the way a single rounded angle does.
+            reconstructed_baseline_features = build_adjusted_what_if_features(
+                baseline_features,
+                model_feature_columns,
+                baseline_month_name,
+                int(round(baseline_wind_direction)),
+                round(baseline_rain_mm, 2),
+                baseline_is_raining,
+                round(baseline_moon_phase, 2),
+                round(baseline_latitude, 5),
+                round(baseline_longitude, 5),
+            )
+            adjusted_features = build_adjusted_what_if_features(
+                baseline_features,
+                model_feature_columns,
+                what_if_month,
+                what_if_wind,
+                what_if_rain,
+                what_if_is_raining,
+                what_if_moon_phase,
+                what_if_latitude,
+                what_if_longitude,
+            )
+            baseline_probability_frame = build_probability_frame(model_info, reconstructed_baseline_features)
+            adjusted_probability_frame = build_probability_frame(model_info, adjusted_features)
+
+            baseline_top = baseline_probability_frame.iloc[0]
+            adjusted_top = adjusted_probability_frame.iloc[0]
+            comparison_frame = (
+                baseline_probability_frame.rename(columns={'Probability': 'Baseline_Probability'})
+                .merge(
+                    adjusted_probability_frame.rename(columns={'Probability': 'Adjusted_Probability'}),
+                    on='Species',
+                    how='outer',
+                )
+                .fillna(0.0)
+            )
+            comparison_frame['Change'] = comparison_frame['Adjusted_Probability'] - comparison_frame['Baseline_Probability']
+            comparison_frame = comparison_frame.sort_values('Adjusted_Probability', ascending=False)
+
+            # Cross-check the adjusted top prediction with the rule-based certainty-factor
+            # engine, reusing the same adjusted inputs the user just set above. This gives
+            # the main what-if result an expert-system sanity check alongside the NN output.
+            adjusted_cf_result = evaluate_certainty_factor(
+                df,
+                species=adjusted_top['Species'],
+                month_name=what_if_month,
+                latitude=what_if_latitude,
+                longitude=what_if_longitude,
+                wind_direction=what_if_wind,
+                rain_mm=what_if_rain,
+                is_raining=what_if_is_raining,
+                moon_phase=what_if_moon_phase,
+                user_profile=user_profile,
+            )
+
+            st.session_state['what_if_result'] = {
+                'baseline_top_species': baseline_top['Species'],
+                'baseline_top_probability': float(baseline_top['Probability']),
+                'adjusted_top_species': adjusted_top['Species'],
+                'adjusted_top_probability': float(adjusted_top['Probability']),
+                'comparison_frame': comparison_frame,
+                'certainty_factor': adjusted_cf_result,
+            }
+
+        result = st.session_state.get('what_if_result')
+        if not result:
+            st.info('Set values above and click "Run what-if comparison" to compare predictions.')
+            return
+
+        metric_col_1, metric_col_2 = st.columns(2)
+        metric_col_1.metric(
+            'Baseline top prediction',
+            f"{result['baseline_top_species']}",
+            f"{result['baseline_top_probability']:.1%}",
+        )
+        metric_col_2.metric(
+            'Adjusted top prediction',
+            f"{result['adjusted_top_species']}",
+            f"{result['adjusted_top_probability']:.1%}",
+        )
+        st.caption(
+            'Percentages above are model probability / predicted likelihood from the neural '
+            'network, not a guaranteed catch volume.'
+        )
+
+        st.markdown('##### Certainty-Factor Engine (CFE) check')
+        st.caption(
+            'Rule-based expert-system cross-check for the adjusted top prediction, using the same '
+            'adjusted inputs. Complements (does not replace) the full Certainty-Factor Expert System panel below.'
+        )
+        render_certainty_badge(result.get('certainty_factor'))
+        cf_for_display = result.get('certainty_factor')
+        if cf_for_display:
+            st.caption(cf_for_display['recommendation'])
+
+        st.markdown('#### Probability comparison')
+        comparison_frame = result['comparison_frame'].copy()
+        bar_view = comparison_frame.head(8).set_index('Species')[['Baseline_Probability', 'Adjusted_Probability']]
+        st.bar_chart(bar_view)
+
+        table_view = comparison_frame.head(12).copy()
+        table_view['Baseline_Probability'] = (table_view['Baseline_Probability'] * 100).round(2)
+        table_view['Adjusted_Probability'] = (table_view['Adjusted_Probability'] * 100).round(2)
+        table_view['Change'] = (table_view['Change'] * 100).round(2)
+        table_view = table_view.rename(columns={
+            'Baseline_Probability': 'Baseline %',
+            'Adjusted_Probability': 'Adjusted %',
+            'Change': 'Change (pp)',
+        })
+        st.dataframe(table_view, use_container_width=True, hide_index=True)
+
+
+def render_target_species_what_if_panel(context_df=None):
+    """Second, independent what-if workflow: pick one target species up front, then
+    adjust environment inputs and track how the model's predicted likelihood for that
+    species changes across runs. Reuses the same helper functions and model as the
+    main what-if panel above, but keeps its own session-state history so the two
+    workflows do not interfere with each other.
+    """
+    with st.container(border=True):
+        st.markdown('### Target Species What-If')
+        st.caption(
+            'Choose one species, then change the environment inputs below to see how the model '
+            'probability / predicted likelihood for that specific species responds. Each run is '
+            'logged so you can compare inputs over time. This is a second what-if workflow, '
+            'separate from the general comparison above, and also demonstrates certainty-factor '
+            'expert-system reasoning for assessment purposes.'
+        )
+
+        model_info = load_species_neural_network()
+        if model_info.get('status') != 'ok':
+            st.warning(model_info.get('message', 'Neural network model could not be loaded.'))
+            return
+
+        model_feature_columns = get_model_feature_columns(model_info)
+        context_source = context_df if isinstance(context_df, pd.DataFrame) and not context_df.empty else df
+        baseline_features = build_context_prediction_features(context_source, model_feature_columns)
+
+        if baseline_features is None:
+            st.warning('No usable baseline context is available for the target-species what-if.')
+            return
+
+        baseline_row = baseline_features.iloc[0]
+        baseline_month_number = int(pd.to_numeric(pd.Series([baseline_row.get('Month_Number', 1)]), errors='coerce').iloc[0] or 1)
+        baseline_month_number = min(max(baseline_month_number, 1), 12)
+        baseline_month_name = month_order[baseline_month_number - 1]
+
+        baseline_wind_direction = cyclical_to_degrees(
+            baseline_row.get('Wind_Direction_Sin', np.nan),
+            baseline_row.get('Wind_Direction_Cos', np.nan),
+        )
+        baseline_moon_phase = cyclical_to_fraction(
+            baseline_row.get('Moon_Phase_Sin', np.nan),
+            baseline_row.get('Moon_Phase_Cos', np.nan),
+        )
+        baseline_rain_mm = float(pd.to_numeric(pd.Series([baseline_row.get('Rain_mm', 0.0)]), errors='coerce').fillna(0.0).iloc[0])
+        baseline_is_raining = bool(pd.to_numeric(pd.Series([baseline_row.get('Is_Raining', 0.0)]), errors='coerce').fillna(0.0).iloc[0] >= 0.5)
+        baseline_latitude = float(pd.to_numeric(pd.Series([baseline_row.get(LAT_COL, 0.0)]), errors='coerce').fillna(0.0).iloc[0])
+        baseline_longitude = float(pd.to_numeric(pd.Series([baseline_row.get(LON_COL, 0.0)]), errors='coerce').fillna(0.0).iloc[0])
+
+        species_options = list(model_info['classes'])
+
+        with st.form('target_species_what_if_form'):
+            target_species = st.selectbox(
+                'Target species',
+                options=species_options,
+                key='target_wf_species',
+            )
+            st.caption(
+                'Species list comes from the model\'s trained classes. Rarer species may be grouped '
+                'into "Other" by the model, so their individual probability cannot be isolated.'
+            )
+
+            control_col_1, control_col_2, control_col_3 = st.columns(3)
+            with control_col_1:
+                target_month = st.selectbox(
+                    'Month',
+                    options=month_order,
+                    index=month_order.index(baseline_month_name),
+                    key='target_wf_month',
+                )
+                target_wind = st.slider(
+                    'Wind direction (degrees)',
+                    min_value=0,
+                    max_value=359,
+                    value=int(round(baseline_wind_direction)),
+                    key='target_wf_wind',
+                )
+            with control_col_2:
+                target_rain = st.number_input(
+                    'Rain amount (mm)',
+                    min_value=0.0,
+                    value=float(round(baseline_rain_mm, 2)),
+                    step=0.1,
+                    key='target_wf_rain',
+                )
+                target_is_raining = st.checkbox(
+                    'Is raining',
+                    value=baseline_is_raining,
+                    key='target_wf_is_raining',
+                )
+            with control_col_3:
+                target_moon_phase = st.slider(
+                    'Moon phase (0-1)',
+                    min_value=0.0,
+                    max_value=1.0,
+                    value=float(round(baseline_moon_phase, 2)),
+                    step=0.01,
+                    key='target_wf_moon_phase',
+                )
+                target_latitude = st.number_input(
+                    'Latitude',
+                    value=float(round(baseline_latitude, 5)),
+                    format='%.5f',
+                    key='target_wf_latitude',
+                )
+                target_longitude = st.number_input(
+                    'Longitude',
+                    value=float(round(baseline_longitude, 5)),
+                    format='%.5f',
+                    key='target_wf_longitude',
+                )
+
+            target_submitted = st.form_submit_button('Run target-species what-if')
+
+        if target_submitted:
+            adjusted_features = build_adjusted_what_if_features(
+                baseline_features,
+                model_feature_columns,
+                target_month,
+                target_wind,
+                target_rain,
+                target_is_raining,
+                target_moon_phase,
+                target_latitude,
+                target_longitude,
+            )
+            probability_frame = build_probability_frame(model_info, adjusted_features)
+            species_row = probability_frame[probability_frame['Species'] == target_species]
+            target_probability = float(species_row['Probability'].iloc[0]) if not species_row.empty else 0.0
+
+            cf_result = evaluate_certainty_factor(
+                df,
+                species=target_species,
+                month_name=target_month,
+                latitude=target_latitude,
+                longitude=target_longitude,
+                wind_direction=target_wind,
+                rain_mm=target_rain,
+                is_raining=target_is_raining,
+                moon_phase=target_moon_phase,
+                user_profile=user_profile,
+            )
+
+            history = st.session_state.setdefault('target_what_if_history', [])
+            run_number = len(history) + 1
+            history.append({
+                'Run': run_number,
+                'Species': target_species,
+                'Probability': target_probability,
+                'Month': target_month,
+                'Wind_Direction': target_wind,
+                'Rain_mm': target_rain,
+                'Is_Raining': target_is_raining,
+                'Moon_Phase': target_moon_phase,
+                'Latitude': target_latitude,
+                'Longitude': target_longitude,
+                'Certainty_Band': CERTAINTY_BADGE_STYLES.get(cf_result['band'], {}).get('label', cf_result['band']),
+            })
+
+            st.session_state['target_what_if_last_result'] = {
+                'species': target_species,
+                'probability': target_probability,
+                'certainty_factor': cf_result,
+            }
+
+        last_result = st.session_state.get('target_what_if_last_result')
+        if not last_result:
+            st.info('Choose a species and adjust the inputs above, then click "Run target-species what-if".')
+            return
+
+        result_col_1, result_col_2 = st.columns(2)
+        with result_col_1:
+            st.metric(
+                f"Predicted likelihood: {last_result['species']}",
+                f"{last_result['probability']:.1%}",
+            )
+            st.caption('Model probability / relative suitability for this species under the chosen inputs, not a guaranteed catch volume.')
+        with result_col_2:
+            st.caption('Certainty-Factor Engine (CFE) cross-check for this species/context:')
+            render_certainty_badge(last_result.get('certainty_factor'))
+            cf_for_display = last_result.get('certainty_factor')
+            if cf_for_display:
+                st.caption(cf_for_display['recommendation'])
+
+        history = st.session_state.get('target_what_if_history', [])
+        if history:
+            history_frame = pd.DataFrame(history)
+
+            st.markdown('#### Probability history for selected species')
+            st.caption(
+                f"Tracks the model's predicted likelihood for {last_result['species']} across your "
+                'runs, so you can see how changing wind, rain, moon phase, month or location shifts '
+                'the prediction.'
+            )
+            species_history = history_frame[history_frame['Species'] == last_result['species']]
+            if not species_history.empty:
+                chart_data = species_history.set_index('Run')[['Probability']].rename(
+                    columns={'Probability': 'Predicted likelihood'}
+                )
+                st.line_chart(chart_data)
+            else:
+                st.info('No history yet for this species.')
+
+            st.markdown('#### Run history (all species)')
+            display_history = history_frame.copy()
+            display_history['Probability'] = (display_history['Probability'] * 100).round(2)
+            display_history = display_history.rename(columns={'Probability': 'Predicted likelihood %'})
+            st.dataframe(display_history, use_container_width=True, hide_index=True)
+
+            if st.button('Clear history', key='target_wf_clear_history'):
+                st.session_state['target_what_if_history'] = []
+                st.session_state.pop('target_what_if_last_result', None)
+                st.rerun()
+        else:
+            st.info('Run the target-species what-if at least once to start building history.')
+
+
+def render_certainty_factor_panel(context_df=None):
+    """Rule-based expert-system panel, separate from the neural network above.
+
+    Implements the certainty-factor engine described in scripts/CertaintyFactors.md,
+    scripts/IF-THEN.md and scripts/Flowchart.md (see certainty_factor.py for the rule
+    logic). This is a second, independent intelligent system: instead of a trained
+    model, it reasons with explicit IF-THEN rules and a running certainty score.
+    """
+    with st.container(border=True):
+        header_col, toggle_col = st.columns([3, 1])
+        with header_col:
+            st.markdown('### Certainty-Factor Expert System')
+            st.caption(
+                'Rule-based recommendation engine (IF-THEN rules + certainty scoring). '
+                'Complements the neural network above rather than replacing it.'
+            )
+        with toggle_col:
+            show_cf = st.checkbox('Show', value=st.session_state.get('show_certainty_factor', True), key='show_certainty_factor')
+
+        if not show_cf:
+            st.info('Certainty-factor panel hidden. Tick "Show" to run the rule-based expert system.')
+            return
+
+        context_source = context_df if isinstance(context_df, pd.DataFrame) and not context_df.empty else df
+
+        default_species_list = sorted(context_source[SPECIES_COL].dropna().unique()) or all_species
+        default_species = default_species_list[0] if default_species_list else all_species[0]
+
+        input_col_1, input_col_2 = st.columns(2)
+        with input_col_1:
+            cf_species = st.selectbox('Species to evaluate', options=all_species, index=all_species.index(default_species) if default_species in all_species else 0, key='cf_species')
+        with input_col_2:
+            month_options = ['(none)'] + available_months
+            default_month = context_source['Month_Name'].mode().iloc[0] if 'Month_Name' in context_source.columns and not context_source['Month_Name'].mode().empty else '(none)'
+            cf_month = st.selectbox('Month to evaluate', options=month_options, index=month_options.index(default_month) if default_month in month_options else 0, key='cf_month')
+
+        # Location and weather context are auto-filled from the current map context
+        # (or the whole dataset if no map filter is active), matching how the
+        # neural network's "Predict from current map context" button behaves.
+        numeric_context = context_source.dropna(subset=[LAT_COL, LON_COL])
+        has_location_context = not numeric_context.empty
+
+        cf_latitude = float(numeric_context[LAT_COL].mean()) if has_location_context else None
+        cf_longitude = float(numeric_context[LON_COL].mean()) if has_location_context else None
+        cf_wind_direction = (
+            float(pd.to_numeric(numeric_context['Wind_Direction_10m'], errors='coerce').mean())
+            if has_location_context and 'Wind_Direction_10m' in numeric_context.columns
+            else None
+        )
+        cf_rain_mm = (
+            float(pd.to_numeric(numeric_context['Rain_mm'], errors='coerce').mean())
+            if has_location_context and 'Rain_mm' in numeric_context.columns
+            else None
+        )
+        cf_is_raining = (
+            bool(pd.to_numeric(numeric_context['Is_Raining'], errors='coerce').fillna(0).mean() >= 0.5)
+            if has_location_context and 'Is_Raining' in numeric_context.columns
+            else None
+        )
+        cf_moon_phase = (
+            float(pd.to_numeric(numeric_context['Moon_Phase'], errors='coerce').mean())
+            if has_location_context and 'Moon_Phase' in numeric_context.columns
+            else None
+        )
+
+        if has_location_context:
+            st.caption(
+                f"Context auto-filled from {'the current map filter' if isinstance(context_df, pd.DataFrame) and not context_df.empty else 'the full dataset'}: "
+                f"location ~({cf_latitude:.2f}, {cf_longitude:.2f}), wind ~{cf_wind_direction:.0f}°, "
+                f"rain ~{cf_rain_mm:.1f}mm, raining: {cf_is_raining}, moon phase ~{cf_moon_phase:.2f}."
+            )
+        else:
+            st.caption('No location/weather context available yet; location and catch-density rules will be skipped.')
+
+        if st.button('Evaluate certainty factor', key='cf_evaluate_button'):
+            result = evaluate_certainty_factor(
+                df,
+                species=cf_species,
+                month_name=cf_month if cf_month != '(none)' else None,
+                latitude=cf_latitude,
+                longitude=cf_longitude,
+                wind_direction=cf_wind_direction,
+                rain_mm=cf_rain_mm,
+                is_raining=cf_is_raining,
+                moon_phase=cf_moon_phase,
+                user_profile=user_profile,
+            )
+            st.session_state['cf_last_result'] = result
+
+        result = st.session_state.get('cf_last_result')
+        if not result:
+            st.info('Choose a species and month above, then click "Evaluate certainty factor".')
+            return
+
+        band_icon = {'strong': '🟢', 'moderate': '🟡', 'weak': '🟠', 'insufficient': '🔴'}.get(result['band'], '')
+        score_col, band_col = st.columns(2)
+        score_col.metric('Certainty score', f"{result['score']} / {result['max_score']}")
+        band_col.metric('Confidence band', f"{band_icon} {result['band_label']}")
+
+        st.write(result['recommendation'])
+
+        st.markdown('#### Rules evaluated')
+        rules_frame = pd.DataFrame([
+            {
+                'Rule': rule['rule'].replace('_', ' ').title(),
+                'Fired?': 'Yes' if rule['passed'] else 'No',
+                'Points': f"+{rule['points']}" if rule['passed'] else '0',
+                'Explanation': rule['description'],
+            }
+            for rule in result['rules_fired']
+        ])
+        st.dataframe(rules_frame, use_container_width=True, hide_index=True)
+
+        st.caption(
+            'Rule definitions: scripts/CertaintyFactors.md | Rule logic: scripts/IF-THEN.md | '
+            'Decision flow: scripts/Flowchart.md'
+        )
 
 
 def normalize_text(value):
@@ -1689,6 +2418,9 @@ def render_ai_page():
                 render_trip_estimator('ai')
 
     render_neural_network_dashboard(st.session_state.get('map_df', pd.DataFrame()))
+    render_what_if_analysis_panel(st.session_state.get('map_df', pd.DataFrame()))
+    render_target_species_what_if_panel(st.session_state.get('map_df', pd.DataFrame()))
+    render_certainty_factor_panel(st.session_state.get('map_df', pd.DataFrame()))
 
     with spacer_col:
         st.empty()

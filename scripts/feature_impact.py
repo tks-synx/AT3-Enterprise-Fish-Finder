@@ -32,8 +32,10 @@ FEATURE_COLUMNS = [
     "Wind_Direction_Cos",
     "Rain_mm",
     "Is_Raining",
-    "Sea_Surface_Temp_C",
 ]
+# Sea_Surface_Temp_C is intentionally excluded: enrichment (scripts/enrich_fish_data.py)
+# returned no usable values for it (100% null in every enriched CSV), so it carries no
+# information and cannot be imputed. See INTELLIGENT_SYSTEMS_IMPLEMENTATION.md.
 
 
 def parse_args() -> argparse.Namespace:
@@ -42,7 +44,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--input",
-        default=os.path.join("newfishdata", "GameFish_Releases_Master_enriched.csv"),
+        default=os.path.join("newfishdata", "Cleaned_Weather_GameFish_Releases_enriched.csv"),
         help="Path to enriched CSV.",
     )
     parser.add_argument(
@@ -118,11 +120,6 @@ def add_cyclic_features(df: pd.DataFrame) -> pd.DataFrame:
         df["Is_Raining"] = pd.to_numeric(df["Is_Raining"], errors="coerce")
     else:
         df["Is_Raining"] = np.nan
-
-    if "Sea_Surface_Temp_C" in df.columns:
-        df["Sea_Surface_Temp_C"] = pd.to_numeric(df["Sea_Surface_Temp_C"], errors="coerce")
-    else:
-        df["Sea_Surface_Temp_C"] = np.nan
 
     return df
 

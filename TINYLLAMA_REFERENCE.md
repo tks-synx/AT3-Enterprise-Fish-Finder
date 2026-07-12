@@ -61,7 +61,8 @@ ollama pull neural-chat
 ollama pull phi
 ```
 
-Then edit `fish_app.py`, change line 24:
+Then edit `fish_app.py`, find the `MODEL_NAME = 'tinyllama'` line near the top
+configuration section and change it:
 ```python
 MODEL_NAME = 'neural-chat'  # or 'phi'
 ```

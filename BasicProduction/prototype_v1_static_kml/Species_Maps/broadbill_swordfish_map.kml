@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Folder>
+    <name>BROADBILL SWORDFISH Heatmap</name>
+    <GroundOverlay>
+      <name>BROADBILL SWORDFISH Density</name>
+      <Icon>
+        <href>broadbill_swordfish_overlay.png</href>
+      </Icon>
+      <LatLonBox>
+        <north>-17.04166667</north>
+        <south>-45.54166667</south>
+        <east>166.09999999960004</east>
+        <west>108.9000000004001</west>
+      </LatLonBox>
+    </GroundOverlay>
+  </Folder>
+</kml>

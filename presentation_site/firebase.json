@@ -1,0 +1,13 @@
+{
+  "hosting": {
+    "site": "fishfinder-presentation",
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "cleanUrls": true,
+    "trailingSlash": false
+  }
+}

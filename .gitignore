@@ -10,6 +10,7 @@ __pycache__/
 venv/
 .venv/
 
+
 # OS / editor
 .DS_Store
 .vscode/
@@ -22,3 +23,20 @@ incoming_data/**
 !incoming_data/**/
 !incoming_data/.gitkeep
 !incoming_data/**/.gitkeep
+
+/scripts/certainty-factor-flowchart.mmd
+/scripts/certainty-factor-decision-tree.mmd
+/PROTOTYPE_EVOLUTION.md
+
+
+/PROTOTYPES_3.2.1b.md
+/SECTION_4_1_OVERVIEW_NOTES.md
+/Users/school/Documents/GitHub/AT3-Enterprise-Fish-Finder/PROTOTYPES_3.2.1b.md
+so pretty much what this is, is that this is a file where you can actually choose what you want to show, and what you dont want to show in github. It actually removes the files from your GitHub commits entirely. which is pretty cool if you ask me.
+Similarly, what this file can also allow you to do, is the actually change what files you also do want, by using the .gitkeep file. Which is pretty much just the opposite to this.
+so yeah, pretty cool if you ask me, and i hope that this will let me get good marks for my assessment tasks!
+now! what to do for getting 5mins in only 3 mins XD
+erm so im cooked pretty much, that is good to know XD.
+so uh yeha ggs sob bro... sob...
+nooo i tried </3 this is way mroe than 5 mins bro!
+oh well ig 
